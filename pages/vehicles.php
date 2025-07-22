@@ -54,6 +54,7 @@ $query = $db->prepare("
     SELECT column_name 
     FROM user_column_preferences 
     WHERE user_id = ? AND table_name = ?
+    ORDER BY id ASC
 ");
 $query->execute([$_SESSION["user_id"], "vehicles-table"]);
 $columns = $query->fetchAll(PDO::FETCH_COLUMN);
@@ -91,30 +92,40 @@ if (empty($columns)) {
                     <div class="card-header"><h3 class="card-title">Araç Listesi</h3></div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        <div class="accordion mb-3" id="filterAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="filterHeading">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                        🔍 Filtreleme Seçenekleri
-                                    </button>
-                                </h2>
-                                <div id="filterCollapse" class="accordion-collapse collapse" aria-labelledby="filterHeading" data-bs-parent="#filterAccordion">
-                                    <div class="accordion-body">
-                                        <div class="row mb-3">
-                                            <div class="col-12">
-                                                <label for="filter-fields">Filtrelenecek Alan(lar):</label>
-                                                <select id="filter-fields" multiple="multiple" style="width: 100%"></select>
+                        <div class="position-relative mb-3" style="width: 100%;">
+                            <div class="accordion mb-3" id="filterAccordion" style="width: 50%">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="filterHeading">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                            🔍 Filtreleme Seçenekleri
+                                        </button>
+                                    </h2>
+                                    <div id="filterCollapse" class="accordion-collapse collapse" aria-labelledby="filterHeading" data-bs-parent="#filterAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <label for="filter-fields">Filtrelenecek Alan(lar):</label>
+                                                    <select id="filter-fields" multiple="multiple" style="width: 100%"></select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div id="filter-inputs-container" class="row mt-3"></div>
-                                        <div class="row mt-3">
-                                            <div class="col-12 d-flex justify-content-end">
-                                                <button id="applyFilters" class="btn btn-primary w-100">Ara</button>
+                                            <div id="filter-inputs-container" class="row mt-3"></div>
+                                            <div class="row mt-3">
+                                                <div class="col-12 d-flex justify-content-end">
+                                                    <button id="applyFilters" class="btn btn-primary w-100">Ara</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+
+                            <!-- Sağ üst köşeye absolute buton -->
+                            <a href="vehicle-form.php"
+                               class="btn btn-info btn-sm d-flex align-items-center shadow-sm position-absolute"
+                               style="top: 0.25rem; right: 0.25rem; font-weight: 600;">
+                                <i class="bi bi-plus-circle me-2" style="font-size: 1.2rem;"></i> Yeni Araç Ekle
+                            </a>
                         </div>
 
                         <!--<table class="table table-bordered">-->
@@ -333,7 +344,7 @@ if (empty($columns)) {
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="vehicle_edit.php?id=${data}"><i class="bi bi-eye me-1"></i>Görüntüle/Düzenle</a></li>
+                                <li><a class="dropdown-item" href="vehicle-form.php?id=${data}"><i class="bi bi-eye me-1"></i>Görüntüle/Düzenle</a></li>
                                 <li><a class="dropdown-item" href="vehicle_stock.php?id=${data}"><i class="bi bi-box-seam me-1"></i>Stok Güncelle</a></li>
                                 <li><a class="dropdown-item btn-copy" href="#" data-id="${data}"><i class="bi bi-files me-1"></i>Kopyala</a></li>
                                 <li><a class="dropdown-item text-danger btn-delete" href="#" data-id="${data}"><i class="bi bi-trash me-1"></i>Sil</a></li>
@@ -429,13 +440,13 @@ if (empty($columns)) {
             columns: columnsConfig,
             order: [[0, 'desc']],
             dom:
-                "<'row'<'col-sm-12 col-md-6'lf><'col-sm-12 col-md-6 text-end'B>>" +
+                "<'row mb-3'<'col-md-6'l><'col-md-6 text-end'f>>" +
                 "<'row'<'col-sm-12'tr>>" +
-                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
             language: {
                 search: "_INPUT_",
                 searchPlaceholder: "Ara...",
-                lengthMenu: "Sayfa başına _MENU_ kayıt",
+                lengthMenu: "Sayfa başına kayıt _MENU_",
                 info: "_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor",
                 paginate: {
                     first: "İlk",

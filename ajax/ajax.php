@@ -49,8 +49,8 @@ if (isset($_GET["action"])) {
         }
 
         $sql = "INSERT INTO vehicles 
-            (company_id, title, brand, model, year, price, is_for_rent, is_for_sale, status, plate, is_plate_hidden, km, is_km_hidden, location_address, gear_type, fuel_type, engine_size, horse_power, color, body_type, description, rental_type, min_rent_duration, max_rent_duration, tramers_price, traction, rental_km_limit, over_km_price, heavy_damage_record)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (company_id, title, brand, model, year, price, is_for_rent, is_for_sale, status, plate, is_plate_hidden, km, is_km_hidden, location_country_id, location_city_id,location_district_id, location_address, gear_type, fuel_type, engine_size, horse_power, color, body_type, description, rental_type, min_rent_duration, max_rent_duration, tramers_price, traction, rental_km_limit, over_km_price, heavy_damage_record)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ";
 
         $stmt = $db->prepare($sql);
@@ -69,6 +69,9 @@ if (isset($_GET["action"])) {
             isset($_POST['is_plate_hidden']) ? (int)$_POST['is_plate_hidden'] : 0,
             $_POST['km'] ?? null,
             isset($_POST['is_km_hidden']) ? (int)$_POST['is_km_hidden'] : 0,
+            $_POST['location_country_id'] ?? null,
+            $_POST['location_city_id'] ?? null,
+            $_POST['location_district_id'] ?? null,
             $_POST['location_address'] ?? null,
             $_POST['gear_type'] ?? 'automatic',
             $_POST['fuel_type'] ?? 'petrol',
@@ -88,11 +91,120 @@ if (isset($_GET["action"])) {
         ]);
 
         if ($result) {
-            echo json_encode(['success' => true]);
+            $lastInsertId = $db->lastInsertId(); // Eklenen aracın ID'si
+            echo json_encode(['success' => true, 'id' => $lastInsertId ?? null]);
         }
         else {
-            echo json_encode(['success' => false, 'error' => 'Veritabanı hatası.']);
+            echo json_encode(['success' => false, 'error' => 'Veritabanı hatası.', 'id' => null]);
         }
+
+    }
+    elseif ($_GET['action'] === 'set_vehicle') {
+        $id = $_POST['upd'] ?? null;
+
+        // Temel kontrol
+        if (!$id || !is_numeric($id)) {
+            echo json_encode(['success' => false, 'error' => 'Geçersiz ID']);
+            exit;
+        }
+
+        $companyId = $_POST['company_id'] ?? null;
+        $title = $_POST['title'] ?? null;
+
+        if (!$companyId || !$title) {
+            echo json_encode(['success' => false, 'error' => 'Firma ve Araç Başlığı zorunludur.']);
+            exit;
+        }
+
+        $sql = "
+            UPDATE vehicles SET
+                company_id = ?,
+                title = ?,
+                brand = ?,
+                model = ?,
+                year = ?,
+                price = ?,
+                is_for_rent = ?,
+                is_for_sale = ?,
+                status = ?,
+                plate = ?,
+                is_plate_hidden = ?,
+                km = ?,
+                is_km_hidden = ?,
+                location_country_id = ?,
+                location_city_id = ?,
+                location_district_id = ?,
+                location_address = ?,
+                gear_type = ?,
+                fuel_type = ?,
+                engine_size = ?,
+                horse_power = ?,
+                color = ?,
+                body_type = ?,
+                description = ?,
+                rental_type = ?,
+                min_rent_duration = ?,
+                max_rent_duration = ?,
+                tramers_price = ?,
+                traction = ?,
+                rental_km_limit = ?,
+                over_km_price = ?,
+                heavy_damage_record = ?
+            WHERE id = ?
+        ";
+
+        $stmt = $db->prepare($sql);
+
+        $result = $stmt->execute([
+            $companyId,
+            $title,
+            $_POST['brand'] ?? null,
+            $_POST['model'] ?? null,
+            $_POST['year'] ?? null,
+            $_POST['price'] ?? null,
+            isset($_POST['is_for_rent']) ? (int)$_POST['is_for_rent'] : 0,
+            isset($_POST['is_for_sale']) ? (int)$_POST['is_for_sale'] : 0,
+            $_POST['status'] ?? 'available',
+            $_POST['plate'] ?? null,
+            isset($_POST['is_plate_hidden']) ? (int)$_POST['is_plate_hidden'] : 0,
+            $_POST['km'] ?? null,
+            isset($_POST['is_km_hidden']) ? (int)$_POST['is_km_hidden'] : 0,
+            $_POST['location_country_id'] ?? null,
+            $_POST['location_city_id'] ?? null,
+            $_POST['location_district_id'] ?? null,
+            $_POST['location_address'] ?? null,
+            $_POST['gear_type'] ?? 'automatic',
+            $_POST['fuel_type'] ?? 'petrol',
+            $_POST['engine_size'] ?? null,
+            $_POST['horse_power'] ?? null,
+            $_POST['color'] ?? null,
+            $_POST['body_type'] ?? null,
+            $_POST['description'] ?? null,
+            $_POST['rental_type'] ?? 'none',
+            $_POST['min_rent_duration'] ?? null,
+            $_POST['max_rent_duration'] ?? null,
+            $_POST['tramers_price'] ?? null,
+            $_POST['traction'] ?? null,
+            $_POST['rental_km_limit'] ?? null,
+            $_POST['over_km_price'] ?? null,
+            isset($_POST['heavy_damage_record']) ? (int)$_POST['heavy_damage_record'] : 0,
+            $id
+        ]);
+
+        if ($result) {
+            echo json_encode([
+                'success' => true,
+                'id' => $id ?? null // veya $inserted_id ya da $_POST['id']
+            ]);
+        }
+        else {
+            echo json_encode([
+                'success' => false,
+                'id' => $id ?? null, // hata olsa da id'yi döndür
+                'error' => 'Güncelleme sırasında veritabanı hatası.'
+            ]);
+        }
+
     }
     elseif ($_GET['action'] === 'getCountries') {
         $stmt = $db->query("SELECT id, name FROM countries ORDER BY name ASC");

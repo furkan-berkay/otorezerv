@@ -42,7 +42,7 @@
                 <li class="nav-item">
                     <a href="<?= BASE_URL ?>pages/vehicles.php"  class="nav-link">
                         <i class="nav-icon bi bi-palette"></i>
-                        <p>Araç Ekle</p>
+                        <p>Araçlar</p>
                     </a>
                 </li>
             </ul>
