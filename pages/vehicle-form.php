@@ -1,3 +1,16 @@
+<?php
+
+$page_text = "Ekleme";
+if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
+    $page_text = "Güncelleme";
+}
+
+$current_page = "vehicles";
+$page_title = "Araç ". $page_text;
+$breadcrumb_home = "Araçlar";
+$breadcrumb_home_link = "pages/vehicles";
+?>
+
 <?php require_once '../includes/init.php'; ?>
 <?php include("../includes/header.php"); ?>
 
@@ -11,11 +24,9 @@
 <?php
 $edit_data = [];
 $edit_inp = "";
-$page_text = "Ekleme";
 $ajax_url = "add_vehicle";
 if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
     $id = intval($_GET["id"]);
-    $page_text = "Güncelleme";
     $ajax_url = "set_vehicle";
     $edit_inp = "<input type='hidden' name='upd' value='".$id."'>";
     $edit_data = $db->query("SELECT * FROM vehicles WHERE id = ".$id)->fetch(PDO::FETCH_ASSOC);
@@ -345,7 +356,7 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
 
             // Ajax submit
             $.ajax({
-                url: <?= BASE_URL ?> + "ajax/ajax.php?action=<?=$ajax_url?>",
+                url: <?= BASE_URL ?> + "ajax/ajax?action=<?=$ajax_url?>",
                 method: "POST",
                 data: $(form).serialize(),
                 dataType: "json",
@@ -354,10 +365,10 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                         toastr.success("Araç başarıyla eklendi!");
                         setTimeout(() => {
                             if (response.id) {
-                                //window.location.href = 'vehicle-form.php?id=' + response.id;
+                                window.location.href = 'vehicle-form?id=' + response.id;
                             }
                             else {
-                                //window.location.href = 'vehicle-form.php';
+                                window.location.href = 'vehicle-form';
                             }
                         }, 1000);
                     }
@@ -412,21 +423,21 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
         const selectedDistrict = $country.data('selected-district');
 
         // Ülkeleri getir
-        $.post("<?= BASE_URL ?>ajax/ajax.php?action=getCountries", {}, function (data) {
+        $.post("<?= BASE_URL ?>ajax/ajax?action=getCountries", {}, function (data) {
             $country.append(data);
 
             if (selectedCountry) {
                 $country.val(selectedCountry).trigger('change');
 
                 // Şehirleri getir
-                $.post("<?= BASE_URL ?>ajax/ajax.php?action=getCities", { country_id: selectedCountry }, function (cityData) {
+                $.post("<?= BASE_URL ?>ajax/ajax?action=getCities", { country_id: selectedCountry }, function (cityData) {
                     $city.empty().append('<option value="">İl Seçin</option>').append(cityData).prop('disabled', false);
 
                     if (selectedCity) {
                         $city.val(selectedCity).trigger('change');
 
                         // İlçeleri getir
-                        $.post("<?= BASE_URL ?>ajax/ajax.php?action=getDistricts", { city_id: selectedCity }, function (districtData) {
+                        $.post("<?= BASE_URL ?>ajax/ajax?action=getDistricts", { city_id: selectedCity }, function (districtData) {
                             $district.empty().append('<option value="">İlçe Seçin</option>').append(districtData).prop('disabled', false);
 
                             if (selectedDistrict) {
@@ -445,7 +456,7 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
             $district.prop('disabled', true).empty().append('<option value="">İlçe Seçin</option>');
 
             if (countryId) {
-                $.post("<?= BASE_URL ?>ajax/ajax.php?action=getCities", { country_id: countryId }, function (data) {
+                $.post("<?= BASE_URL ?>ajax/ajax?action=getCities", { country_id: countryId }, function (data) {
                     $city.append(data).prop('disabled', false);
                 });
             }
@@ -456,7 +467,7 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
             $district.prop('disabled', true).empty().append('<option value="">İlçe Seçin</option>');
 
             if (cityId) {
-                $.post("<?= BASE_URL ?>ajax/ajax.php?action=getDistricts", { city_id: cityId }, function (data) {
+                $.post("<?= BASE_URL ?>ajax/ajax?action=getDistricts", { city_id: cityId }, function (data) {
                     $district.append(data).prop('disabled', false);
                 });
             }

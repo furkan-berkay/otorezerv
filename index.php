@@ -1,14 +1,15 @@
+<?php
+$current_page = "dashboard";
+$page_title = "";
+$breadcrumb_home = "Anasayfa";
+$breadcrumb_home_link = "";
+?>
 <?php require_once __DIR__ . '/includes/init.php'; ?>
 <?php include("includes/header.php"); ?>
-<!--begin::App Content-->
 <div class="app-content">
-    <!--begin::Container-->
     <div class="container-fluid">
-        <!--begin::Row-->
         <div class="row">
-            <!--begin::Col-->
             <div class="col-lg-3 col-6">
-                <!--begin::Small Box Widget 1-->
                 <div class="small-box text-bg-primary">
                     <div class="inner">
                         <h3>150</h3>
@@ -32,11 +33,8 @@
                         More info <i class="bi bi-link-45deg"></i>
                     </a>
                 </div>
-                <!--end::Small Box Widget 1-->
             </div>
-            <!--end::Col-->
             <div class="col-lg-3 col-6">
-                <!--begin::Small Box Widget 2-->
                 <div class="small-box text-bg-success">
                     <div class="inner">
                         <h3>53<sup class="fs-5">%</sup></h3>
@@ -60,11 +58,8 @@
                         More info <i class="bi bi-link-45deg"></i>
                     </a>
                 </div>
-                <!--end::Small Box Widget 2-->
             </div>
-            <!--end::Col-->
             <div class="col-lg-3 col-6">
-                <!--begin::Small Box Widget 3-->
                 <div class="small-box text-bg-warning">
                     <div class="inner">
                         <h3>44</h3>
@@ -88,11 +83,8 @@
                         More info <i class="bi bi-link-45deg"></i>
                     </a>
                 </div>
-                <!--end::Small Box Widget 3-->
             </div>
-            <!--end::Col-->
             <div class="col-lg-3 col-6">
-                <!--begin::Small Box Widget 4-->
                 <div class="small-box text-bg-danger">
                     <div class="inner">
                         <h3>65</h3>
@@ -123,26 +115,16 @@
                         More info <i class="bi bi-link-45deg"></i>
                     </a>
                 </div>
-                <!--end::Small Box Widget 4-->
             </div>
-            <!--end::Col-->
         </div>
-        <!--end::Row-->
-        <!--begin::Row-->
         <div class="row">
-            <!-- Start col -->
             <div class="col-lg-7 connectedSortable">
                 <div class="card mb-4">
                     <div class="card-header"><h3 class="card-title">Sales Value</h3></div>
                     <div class="card-body"><div id="revenue-chart"></div></div>
                 </div>
-                <!-- /.card -->
             </div>
-            <!-- /.Start col -->
         </div>
-        <!-- /.row (main row) -->
     </div>
-    <!--end::Container-->
 </div>
-<!--end::App Content-->
 <?php include("includes/footer.php"); ?>

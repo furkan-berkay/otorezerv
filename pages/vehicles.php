@@ -1,3 +1,10 @@
+<?php
+$current_page = "vehicles";
+$page_title = "Araçlar";
+$breadcrumb_home = "Anasayfa";
+$breadcrumb_home_link = "";
+?>
+
 <?php require_once '../includes/init.php'; ?>
 <?php include("../includes/header.php"); ?>
 
@@ -110,7 +117,10 @@ if (empty($columns)) {
                                             </div>
                                             <div id="filter-inputs-container" class="row mt-3"></div>
                                             <div class="row mt-3">
-                                                <div class="col-12 d-flex justify-content-end">
+                                                <div class="col-6 pe-1">
+                                                    <button id="clearFilters" class="btn btn-outline-danger w-100">Tüm Filtreleri Kaldır</button>
+                                                </div>
+                                                <div class="col-6 ps-1">
                                                     <button id="applyFilters" class="btn btn-primary w-100">Ara</button>
                                                 </div>
                                             </div>
@@ -121,7 +131,7 @@ if (empty($columns)) {
 
 
                             <!-- Sağ üst köşeye absolute buton -->
-                            <a href="vehicle-form.php"
+                            <a href="vehicle-form"
                                class="btn btn-info btn-sm d-flex align-items-center shadow-sm position-absolute"
                                style="top: 0.25rem; right: 0.25rem; font-weight: 600;">
                                 <i class="bi bi-plus-circle me-2" style="font-size: 1.2rem;"></i> Yeni Araç Ekle
@@ -260,7 +270,7 @@ if (empty($columns)) {
         { name: 'title', label: 'Başlık', type: 'text' },
         { name: 'brand', label: 'Marka', type: 'text' },
         { name: 'model', label: 'Model', type: 'text' },
-        { name: 'year', label: 'Yıl', type: 'number' },
+        { name: 'year', label: 'Yıl (<=)', type: 'number', range: true },  // filtre için max fiyat gibi düşünebili, range: trueiz
         { name: 'price', label: 'Fiyat (<=)', type: 'number', range: true },  // filtre için max fiyat gibi düşünebili, range: trueiz
         { name: 'is_for_rent', label: 'Kiralık', type: 'select', options: [{val:'1', text:'Evet'}, {val:'0', text:'Hayır'}] },
         { name: 'is_for_sale', label: 'Satılık', type: 'select', options: [{val:'1', text:'Evet'}, {val:'0', text:'Hayır'}] },
@@ -325,7 +335,7 @@ if (empty($columns)) {
     ];
 
     let clearBtnHtml = `
-        <button type="button" class="btn btn-outline-danger btn-sm clear-filter-btn" title="Filtreyi Temizle">
+        <button type="button" class="btn btn-outline-danger btn-sm clear-filter-btn" title="Filtreyi Kaldır">
             <i class="bi bi-trash-fill"></i>
         </button>
     `;
@@ -344,7 +354,7 @@ if (empty($columns)) {
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="vehicle-form.php?id=${data}"><i class="bi bi-eye me-1"></i>Görüntüle/Düzenle</a></li>
+                                <li><a class="dropdown-item" href="vehicle-form?id=${data}"><i class="bi bi-eye me-1"></i>Görüntüle/Düzenle</a></li>
                                 <li><a class="dropdown-item" href="vehicle_stock.php?id=${data}"><i class="bi bi-box-seam me-1"></i>Stok Güncelle</a></li>
                                 <li><a class="dropdown-item btn-copy" href="#" data-id="${data}"><i class="bi bi-files me-1"></i>Kopyala</a></li>
                                 <li><a class="dropdown-item text-danger btn-delete" href="#" data-id="${data}"><i class="bi bi-trash me-1"></i>Sil</a></li>
@@ -407,7 +417,7 @@ if (empty($columns)) {
             processing: true,
             serverSide: true,
             ajax: {
-                url: "<?= BASE_URL ?>ajax/ajax.php?action=get_vehicles",
+                url: "<?= BASE_URL ?>ajax/ajax?action=get_vehicles",
                 type: 'POST',
                 data: function(d) {
                     const filterInputs = {};
@@ -431,7 +441,6 @@ if (empty($columns)) {
 
                     return $.extend({}, d, { filters: filterInputs });
                 }
-
             },
             lengthMenu: [
                 [5, 10, 25, 50, 100, -1],
@@ -478,7 +487,7 @@ if (empty($columns)) {
 
             // AJAX ile backend'e sütun seçimini gönder (JSON formatında)
             $.ajax({
-                url: '<?= BASE_URL ?>ajax/ajax.php?action=save_columns',
+                url: '<?= BASE_URL ?>ajax/ajax?action=save_columns',
                 type: 'POST',
                 data: { columns: selectedColumns },
                 success: function(response) {
@@ -649,6 +658,21 @@ if (empty($columns)) {
         $('#applyFilters').on('click', function() {
             table.ajax.reload();
         });
+
+        $('#clearFilters').on('click', function () {
+            // Tüm filtre inputlarını DOM'dan kaldır
+            $('#filter-inputs-container').empty();
+
+            // Select2 seçimlerini temizle
+            $('#filter-fields').val(null).trigger('change');
+
+            // Accordion'u kapat
+            $('#filterCollapse').collapse('hide');
+
+            // DataTable'ı filtresiz yeniden yükle
+            table.ajax.reload();
+        });
+
 
     });
 </script>

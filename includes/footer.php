@@ -1,32 +1,16 @@
             </main>
-            <!--end::App Main-->
-            <!--begin::Footer-->
             <footer class="app-footer">
-            <!--<footer class="app-footer bg-warning" data-bs-theme="light">-->
-                <!--begin::To the end-->
                 <div class="float-end d-none d-sm-inline">Anything you want</div>
-                <!--end::To the end-->
-                <!--begin::Copyright-->
                 <strong>
-                    Copyright &copy; 2014-2025&nbsp;
-                    <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+                    Copyright 𝓕ℬ© 2025&nbsp;
                 </strong>
                 All rights reserved.
-                <!--end::Copyright-->
             </footer>
-            <!--end::Footer-->
         </div>
-        <!--end::App Wrapper-->
-        <!--begin::Script-->
-        <!--begin::Third Party Plugin(OverlayScrollbars)-->
         <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous" ></script>
-        <!--end::Third Party Plugin(OverlayScrollbars)--><!--begin::Required Plugin(popperjs for Bootstrap 5)-->
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous" ></script>
-        <!--end::Required Plugin(popperjs for Bootstrap 5)--><!--begin::Required Plugin(Bootstrap 5)-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
-        <!--end::Required Plugin(Bootstrap 5)--><!--begin::Required Plugin(AdminLTE)-->
         <script src="<?= BASE_URL ?>adminlte/dist/js/adminlte.js"></script>
-        <!--end::Required Plugin(AdminLTE)--><!--begin::OverlayScrollbars Configure-->
         <script>
             const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
             const Default = {
@@ -47,14 +31,10 @@
                 }
             });
         </script>
-        <!--end::OverlayScrollbars Configure-->
-        <!-- OPTIONAL SCRIPTS -->
-        <!-- sortablejs -->
         <script
                 src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"
                 crossorigin="anonymous"
         ></script>
-        <!-- sortablejs -->
         <script>
             new Sortable(document.querySelector('.connectedSortable'), {
                 group: 'shared',
@@ -66,9 +46,7 @@
                 cardHeader.style.cursor = 'move';
             });
         </script>
-        <!-- apexcharts -->
         <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js" integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8=" crossorigin="anonymous" ></script>
-        <!-- ChartJS -->
         <script>
             // NOTICE!! DO NOT USE ANY OF THIS JAVASCRIPT
             // IT'S ALL JUST JUNK FOR DEMO
@@ -127,7 +105,6 @@
             );
             sales_chart.render();
         </script>
-        <!-- jsvectormap -->
         <script
                 src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"
                 integrity="sha256-/t1nN2956BT869E6H4V1dnt0X5pAQHPytli+1nTZm2Y="
@@ -138,8 +115,6 @@
                 integrity="sha256-XPpPaZlU8S/HWf7FZLAncLg2SAkP8ScUTII89x9D3lY="
                 crossorigin="anonymous"
         ></script>
-        <!--end::Script-->
-
         <script>
             // Color Mode Toggler
             (() => {
@@ -222,15 +197,12 @@
                 });
             })();
         </script>
-
-
-
         <script>
             $(document).ready(function() {
 
                 // Firma listesini çek ve dropdown'a doldur
                 function loadCompanies() {
-                    return $.getJSON(<?= BASE_URL ?>+"ajax/ajax.php?action=get_companies", function(data) {
+                    return $.getJSON(<?= BASE_URL ?>+"ajax/ajax?action=get_companies", function(data) {
                         const $dropdown = $("#company-switcher");
                         $dropdown.empty();
                         data.forEach(function(company) {
@@ -249,7 +221,7 @@
                 // Firma değişikliği bildir
                 function setCompany(companyId) {
                     return $.ajax({
-                        url: <?= BASE_URL ?>+"ajax/ajax.php?action=set_company",
+                        url: <?= BASE_URL ?>+"ajax/ajax?action=set_company",
                         method: "POST",
                         data: { company_id: companyId },
                         dataType: "json" // beklenen dönüş tipi
@@ -287,5 +259,4 @@
 
         </script>
     </body>
-<!--end::Body-->
 </html>

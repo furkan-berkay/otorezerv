@@ -1,9 +1,5 @@
 RewriteEngine On
-RewriteBase /
 
-# Eğer istenen dosya veya dizin gerçek yoksa aşağıdaki kuralları uygula
+
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Uzantısı .php olan dosyaları, uzantı olmadan çağırabilmek için yönlendir
-RewriteRule ^([^/.]+)$ $1.php [L,QSA]
+RewriteRule ^([^\.]+)$ $1.php [NC,L]

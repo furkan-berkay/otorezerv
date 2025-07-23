@@ -258,37 +258,65 @@ if (isset($_GET["action"])) {
         $orderDir = strtolower($orderDir) === 'asc' ? 'ASC' : 'DESC';
 
         // 1. Toplam kayıt sayısı
-        $totalRecords = $db->query("SELECT COUNT(*) FROM vehicles")->fetchColumn();
+        $totalRecords = $db->query("SELECT COUNT(*) FROM vehicles WHERE company_id = {$_SESSION["selected_company_id"]}")->fetchColumn();
 
         // 2. Arama varsa WHERE kısmı oluşturulacak
-        $searchSql = "";
-        $searchParams = [];
+        $searchSql = "WHERE company_id = :company_id ";
+        $searchParams = [":company_id" => $_SESSION["selected_company_id"]];
 
         if ($searchValue !== '') {
             $searchSqlParts = [];
-            foreach ($columns as $col) {
-                if (in_array($col, ['id', 'year', 'price', 'is_for_rent', 'is_for_sale', 'created_at', 'is_plate_hidden', 'km', 'is_km_hidden', 'location_country_id', 'location_city_id', 'location_district_id', 'engine_size', 'horse_power', 'min_rent_duration', 'max_rent_duration', 'tramers_price', 'rental_km_limit', 'over_km_price', 'heavy_damage_record'])) {
-                    // Numeric veya tarih kolonlar için LIKE değil eşitlik denemesi yapılabilir, ama burada LIKE yapabiliriz kolaylık için
-                    $searchSqlParts[] = "$col LIKE ?";
-                    $searchParams[] = "%$searchValue%";
-                }
-                else {
-                    $searchSqlParts[] = "$col LIKE ?";
-                    $searchParams[] = "%$searchValue%";
-                }
+            foreach ($columns as $index => $col) {
+                $paramName = ":search_$index";
+                $searchSqlParts[] = "$col LIKE $paramName";
+                $searchParams[$paramName] = "%$searchValue%";
             }
-            $searchSql = "WHERE (" . implode(" OR ", $searchSqlParts) . ")";
+            $searchSql .= "AND (" . implode(" OR ", $searchSqlParts) . ") ";
         }
 
-        // 3. Toplam filtrelenmiş kayıt sayısı
-        if ($searchSql) {
-            $stmt = $db->prepare("SELECT COUNT(*) FROM vehicles $searchSql");
-            $stmt->execute($searchParams);
-            $filteredRecords = $stmt->fetchColumn();
+        // Özel filtreler
+        if (!empty($_POST['filters']) && is_array($_POST['filters'])) {
+            foreach ($_POST['filters'] as $field => $value) {
+                if ($value === '' || $value === null) continue;
+
+                // min/max aralıklar
+                if (str_ends_with($field, '_min')) {
+                    $col = substr($field, 0, -4);
+                    if (in_array($col, $columns)) {
+                        $paramName = ":{$col}_min";
+                        $searchSql .= "AND `$col` >= $paramName ";
+                        $searchParams[$paramName] = $value;
+                    }
+                }
+                elseif (str_ends_with($field, '_max')) {
+                    $col = substr($field, 0, -4);
+                    if (in_array($col, $columns)) {
+                        $paramName = ":{$col}_max";
+                        $searchSql .= "AND `$col` <= $paramName ";
+                        $searchParams[$paramName] = $value;
+                    }
+                }
+
+                // Normal eşitlik veya LIKE filtreler
+                elseif (in_array($field, $columns)) {
+                    $paramName = ":$field";
+                    if (is_numeric($value)) {
+                        $searchSql .= "AND `$field` = $paramName ";
+                        $searchParams[$paramName] = $value;
+                    }
+                    else {
+                        $searchSql .= "AND `$field` LIKE $paramName ";
+                        $searchParams[$paramName] = '%' . $value . '%';
+                    }
+                }
+            }
         }
-        else {
-            $filteredRecords = $totalRecords;
-        }
+
+        // Filtrelenmiş kayıt sayısı sorgusu
+        $stmt = $db->prepare("SELECT COUNT(*) FROM vehicles $searchSql");
+        $stmt->execute($searchParams);
+        $filteredRecords = $stmt->fetchColumn();
+
 
         $start = (int)$start;
         $length = (int)$length;
