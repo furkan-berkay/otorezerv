@@ -16,8 +16,26 @@ function getUserCompanies($userId) {
     $stmt->execute([$userId]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+function getDurationUnitLabel($unit) {
+    return [
+        'gun' => 'Gün',
+        'ay' => 'Ay',
+        'yil' => 'Yıl'
+    ][$unit] ?? null;
+}
+
+function getCurrencySymbol($currency) {
+    return [
+        'TRY' => '₺',
+        'USD' => '$',
+        'EUR' => '€'
+    ][$currency] ?? null;
+}
+
 function print_c($text) {
     echo "<pre>";
     print_r($text);
     echo "</pre>";
 }
+

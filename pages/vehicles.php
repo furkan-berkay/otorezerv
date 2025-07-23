@@ -368,33 +368,33 @@ if (empty($columns)) {
             brand: { data: 'brand' },
             model: { data: 'model' },
             year: { data: 'year' },
-            price: { data: 'price' },
+            price: { data: 'price' }, //number format olmalı
             is_for_rent: { data: 'is_for_rent', render: data => data == 1 ? 'Evet' : 'Hayır' },
             is_for_sale: { data: 'is_for_sale', render: data => data == 1 ? 'Evet' : 'Hayır' },
-            status: { data: 'status' },
-            created_at: { data: 'created_at' },
+            status: { data: 'status' }, //tr olmalı
+            created_at: { data: 'created_at' }, //d/m/Y H:i:s olmalı
             plate: { data: 'plate' },
             is_plate_hidden: { data: 'is_plate_hidden', render: data => data == 1 ? 'Evet' : 'Hayır' },
             km: { data: 'km' },
             is_km_hidden: { data: 'is_km_hidden', render: data => data == 1 ? 'Evet' : 'Hayır' },
             location_address: { data: 'location_address' },
-            location_country_id: { data: 'location_country_id' },
-            location_city_id: { data: 'location_city_id' },
-            location_district_id: { data: 'location_district_id' },
-            gear_type: { data: 'gear_type' },
-            fuel_type: { data: 'fuel_type' },
+            location_country_id: { data: 'location_country_name' }, //id değil ismi gelmeli
+            location_city_id: { data: 'location_city_name' }, //id değil ismi gelmeli
+            location_district_id: { data: 'location_district_name' }, //id değil ismi gelmeli
+            gear_type: { data: 'gear_type' }, //tr olmalı
+            fuel_type: { data: 'fuel_type' }, //tr olmalı
             engine_size: { data: 'engine_size' },
             horse_power: { data: 'horse_power' },
             color: { data: 'color' },
-            body_type: { data: 'body_type' },
+            body_type: { data: 'body_type' }, //tr olmalı
             description: { data: 'description' },
-            rental_type: { data: 'rental_type' },
-            min_rent_duration: { data: 'min_rent_duration' },
-            max_rent_duration: { data: 'max_rent_duration' },
-            tramers_price: { data: 'tramers_price' },
-            traction: { data: 'traction' },
+            rental_type: { data: 'rental_type' }, //tr olmalı
+            min_rent_duration: { data: 'min_rent_duration' }, //yanında gün yazsın
+            max_rent_duration: { data: 'max_rent_duration' }, //yanında gün yazsın
+            tramers_price: { data: 'tramers_price' }, //number format olmalı
+            traction: { data: 'traction' }, // büyük harfe çevirsek yeter gibi
             rental_km_limit: { data: 'rental_km_limit' },
-            over_km_price: { data: 'over_km_price' },
+            over_km_price: { data: 'over_km_price' }, //number format olmalı
             heavy_damage_record: { data: 'heavy_damage_record', render: data => data == 1 ? 'Evet' : 'Hayır' }
         };
 
@@ -677,6 +677,15 @@ if (empty($columns)) {
     });
 </script>
 
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<script>
+    $(function() {
+        $(".modal").draggable({
+            handle: ".modal-header"
+        });
+    });
+</script>
 
 
 <?php include("../includes/footer.php"); ?>

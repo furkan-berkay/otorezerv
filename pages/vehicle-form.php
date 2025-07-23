@@ -19,6 +19,20 @@ $breadcrumb_home_link = "pages/vehicles";
         background-color: #fff !important;
         color: #000 !important;
     }
+
+    #color-picker:disabled {
+        opacity: 0.5;
+        cursor: not-allowed; /* no-drop yerine */
+    }
+
+    #color-picker {
+        height: calc(2.375rem + 1px);
+        padding: 0.375rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        background-color: #fff;
+    }
+
 </style>
 
 <?php
@@ -104,8 +118,30 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                 </div>
 
                                 <div class="col-md-4">
-                                    <label for="color" class="form-label">Renk<span style="color: red">bura renk seçimi olacak</span></label>
-                                    <input type="text" id="color" name="color" class="form-control" maxlength="30" value="<?= $edit_data["color"] ?? "" ?>">
+                                    <?php
+                                        $predefinedColors = [
+                                            "#000000" => "Siyah",
+                                            "#FFFFFF" => "Beyaz",
+                                            "#808080" => "Gri",
+                                            "#FF0000" => "Kırmızı",
+                                            "#0000FF" => "Mavi",
+                                            "#8B0000" => "Bordo",
+                                        ];
+                                    ?>
+                                    <label for="color" class="form-label">Renk <small style="color:red;">(Ana renk seçin veya özel renk için "Diğer..." seçeneğini kullanın)</small></label>
+
+                                    <div class="input-group">
+                                        <input type="color" id="color-picker" value="<?= htmlspecialchars($edit_data["color"] ?? '#ffffff') ?>" disabled>
+                                        <select id="color-select" class="form-select mb-2" aria-label="Ana renk seçimi" >
+                                            <?php foreach ($predefinedColors as $hex => $label): ?>
+                                                <option value="<?= $hex ?>" <?= ($edit_data["color"] ?? '') == $hex ? 'selected' : '' ?>>
+                                                    <?= $label ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                            <option value="custom" <?= (!isset($predefinedColors[$edit_data["color"] ?? ''])) ? 'selected' : '' ?>>Diğer...</option>
+                                        </select>
+                                        <input type="hidden" name="color" id="color-hidden">
+                                    </div>
                                 </div>
 
                                 <div class="col-md-4">
@@ -181,13 +217,27 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label for="min_rent_duration" class="form-label">Minimum Kiralama Süresi (gün)</label>
-                                    <input type="number" id="min_rent_duration" name="min_rent_duration" class="form-control" min="0" value="<?= $edit_data["min_rent_duration"] ?? "" ?>">
+                                    <label for="min_rent_duration" class="form-label">Minimum Kiralama Süresi</label>
+                                    <div class="input-group">
+                                        <input type="number" id="min_rent_duration" name="min_rent_duration" class="form-control" min="0" value="<?= $edit_data["min_rent_duration"] ?? "" ?>">
+                                        <select name="min_rent_duration_unit" class="form-select" style="max-width: 80px;">
+                                            <option value="gun" <?= ($edit_data["min_rent_duration_unit"] ?? '') === 'gun' ? 'selected' : '' ?>>Gün</option>
+                                            <option value="ay" <?= ($edit_data["min_rent_duration_unit"] ?? '') === 'ay' ? 'selected' : '' ?>>Ay</option>
+                                            <option value="yil" <?= ($edit_data["min_rent_duration_unit"] ?? '') === 'yil' ? 'selected' : '' ?>>Yıl</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label for="max_rent_duration" class="form-label">Maksimum Kiralama Süresi (gün)</label>
-                                    <input type="number" id="max_rent_duration" name="max_rent_duration" class="form-control" min="0" value="<?= $edit_data["max_rent_duration"] ?? "" ?>">
+                                    <label for="max_rent_duration" class="form-label">Maksimum Kiralama Süresi</label>
+                                    <div class="input-group">
+                                        <input type="number" id="max_rent_duration" name="max_rent_duration" class="form-control" min="0" value="<?= $edit_data["max_rent_duration"] ?? "" ?>">
+                                        <select name="max_rent_duration_unit" class="form-select" style="max-width: 80px;">
+                                            <option value="gun" <?= ($edit_data["max_rent_duration_unit"] ?? '') === 'gun' ? 'selected' : '' ?>>Gün</option>
+                                            <option value="ay" <?= ($edit_data["max_rent_duration_unit"] ?? '') === 'ay' ? 'selected' : '' ?>>Ay</option>
+                                            <option value="yil" <?= ($edit_data["max_rent_duration_unit"] ?? '') === 'yil' ? 'selected' : '' ?>>Yıl</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="col-md-2">
@@ -196,8 +246,15 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label for="over_km_price" class="form-label">Km Aşım Ücreti (₺/km)</label>
-                                    <input type="number" step="0.01" id="over_km_price" name="over_km_price" class="form-control" min="0" value="<?= $edit_data["over_km_price"] ?? "" ?>">
+                                    <label for="over_km_price" class="form-label">Km Aşım Ücreti (fiyat/km)</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.01" id="over_km_price" name="over_km_price" class="form-control" min="0" value="<?= $edit_data["over_km_price"] ?? "" ?>">
+                                        <select name="over_km_price_currency" class="form-select" style="max-width: 80px;">
+                                            <option value="TRY" <?= ($edit_data["over_km_price_currency"] ?? '') === 'TRY' ? 'selected' : '' ?>>₺</option>
+                                            <option value="USD" <?= ($edit_data["over_km_price_currency"] ?? '') === 'USD' ? 'selected' : '' ?>>$</option>
+                                            <option value="EUR" <?= ($edit_data["over_km_price_currency"] ?? '') === 'EUR' ? 'selected' : '' ?>>€</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="col-md-3">
@@ -209,8 +266,15 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label for="price" class="form-label">Fiyat (₺)</label>
-                                    <input type="number" step="0.01" id="price" name="price" class="form-control" min="0" value="<?= $edit_data["price"] ?? "" ?>">
+                                    <label for="price" class="form-label">Fiyat</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.01" id="price" name="price" class="form-control" min="0" value="<?= $edit_data["price"] ?? "" ?>">
+                                        <select name="price_currency" class="form-select" style="max-width: 80px;">
+                                            <option value="TRY" <?= ($edit_data["price_currency"] ?? '') === 'TRY' ? 'selected' : '' ?>>₺</option>
+                                            <option value="USD" <?= ($edit_data["price_currency"] ?? '') === 'USD' ? 'selected' : '' ?>>$</option>
+                                            <option value="EUR" <?= ($edit_data["price_currency"] ?? '') === 'EUR' ? 'selected' : '' ?>>€</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <hr class="my-4" />
@@ -297,8 +361,15 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label for="tramers_price" class="form-label">Tramer Fiyatı (₺)</label>
-                                    <input type="number" step="0.01" id="tramers_price" name="tramers_price" class="form-control" min="0" value="<?= $edit_data["tramers_price"] ?? "" ?>">
+                                    <label for="tramers_price" class="form-label">Tramer Fiyatı</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.01" id="tramers_price" name="tramers_price" class="form-control" min="0" value="<?= $edit_data["tramers_price"] ?? "" ?>">
+                                        <select name="tramers_price_currency" class="form-select" style="max-width: 80px;">
+                                            <option value="TRY" <?= ($edit_data["tramers_price_currency"] ?? '') === 'TRY' ? 'selected' : '' ?>>₺</option>
+                                            <option value="USD" <?= ($edit_data["tramers_price_currency"] ?? '') === 'USD' ? 'selected' : '' ?>>$</option>
+                                            <option value="EUR" <?= ($edit_data["tramers_price_currency"] ?? '') === 'EUR' ? 'selected' : '' ?>>€</option>
+                                        </select>
+                                    </div>
                                 </div>
 
 
@@ -365,10 +436,10 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                         toastr.success("Araç başarıyla eklendi!");
                         setTimeout(() => {
                             if (response.id) {
-                                window.location.href = 'vehicle-form?id=' + response.id;
+                                //window.location.href = 'vehicle-form?id=' + response.id;
                             }
                             else {
-                                window.location.href = 'vehicle-form';
+                                //window.location.href = 'vehicle-form';
                             }
                         }, 1000);
                     }
@@ -411,6 +482,7 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+
     $(document).ready(function () {
         $('.select2').select2();
 
@@ -472,6 +544,44 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                 });
             }
         });
+
+        $('#plate').on('input', function () {
+            $(this).val($(this).val().toUpperCase().replace(/\s/g, ''));
+        });
+
+
+        const $colorInput = $('#color-picker');
+        const $colorHidden = $('#color-hidden');
+
+        function updateColorPicker() {
+            const selected = $('#color-select').val();
+
+            if (selected === 'custom') {
+                $colorInput.prop('disabled', false);
+                if (!$colorInput.val()) {
+                    $colorInput.val('#000000');
+                }
+                $colorHidden.val($colorInput.val());
+            } else if (selected !== '') {
+                $colorInput.val(selected).prop('disabled', true);
+                $colorHidden.val(selected);
+            } else {
+                $colorInput.val('#000000').prop('disabled', true);
+                $colorHidden.val('');
+            }
+        }
+
+        $('#color-select').on('change', updateColorPicker);
+
+        $colorInput.on('input', function () {
+            // Custom color seçiliyken kullanıcı renk değiştirirse hidden input'u güncelle
+            if ($('#color-select').val() === 'custom') {
+                $colorHidden.val($(this).val());
+            }
+        });
+
+        updateColorPicker(); // Sayfa yüklenince ilk durumu ayarla
+
     });
 
 </script>

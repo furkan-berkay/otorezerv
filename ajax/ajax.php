@@ -49,8 +49,8 @@ if (isset($_GET["action"])) {
         }
 
         $sql = "INSERT INTO vehicles 
-            (company_id, title, brand, model, year, price, is_for_rent, is_for_sale, status, plate, is_plate_hidden, km, is_km_hidden, location_country_id, location_city_id,location_district_id, location_address, gear_type, fuel_type, engine_size, horse_power, color, body_type, description, rental_type, min_rent_duration, max_rent_duration, tramers_price, traction, rental_km_limit, over_km_price, heavy_damage_record)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (company_id, title, brand, model, year, price, price_currency, is_for_rent, is_for_sale, status, plate, is_plate_hidden, km, is_km_hidden, location_country_id, location_city_id,location_district_id, location_address, gear_type, fuel_type, engine_size, horse_power, color, body_type, description, rental_type, min_rent_duration, min_rent_duration_unit, max_rent_duration, max_rent_duration_unit, tramers_price, tramers_price_currency, traction, rental_km_limit, over_km_price, over_km_price_currency, heavy_damage_record)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ";
 
         $stmt = $db->prepare($sql);
@@ -62,6 +62,7 @@ if (isset($_GET["action"])) {
             $_POST['model'] ?? null,
             $_POST['year'] ?? null,
             $_POST['price'] ?? null,
+            $_POST['price_currency'] ?? null,
             isset($_POST['is_for_rent']) ? (int)$_POST['is_for_rent'] : 0,
             isset($_POST['is_for_sale']) ? (int)$_POST['is_for_sale'] : 0,
             $_POST['status'] ?? 'available',
@@ -82,11 +83,15 @@ if (isset($_GET["action"])) {
             $_POST['description'] ?? null,
             $_POST['rental_type'] ?? 'none',
             $_POST['min_rent_duration'] ?? null,
+            $_POST['min_rent_duration_unit'] ?? null,
             $_POST['max_rent_duration'] ?? null,
+            $_POST['max_rent_duration_unit'] ?? null,
             $_POST['tramers_price'] ?? null,
+            $_POST['tramers_price_currency'] ?? null,
             $_POST['traction'] ?? null,
             $_POST['rental_km_limit'] ?? null,
             $_POST['over_km_price'] ?? null,
+            $_POST['over_km_price_currency'] ?? null,
             isset($_POST['heavy_damage_record']) ? (int)$_POST['heavy_damage_record'] : 0
         ]);
 
@@ -124,6 +129,7 @@ if (isset($_GET["action"])) {
                 model = ?,
                 year = ?,
                 price = ?,
+                price_currency = ?,
                 is_for_rent = ?,
                 is_for_sale = ?,
                 status = ?,
@@ -144,11 +150,15 @@ if (isset($_GET["action"])) {
                 description = ?,
                 rental_type = ?,
                 min_rent_duration = ?,
+                min_rent_duration_unit = ?,
                 max_rent_duration = ?,
+                max_rent_duration_unit = ?,
                 tramers_price = ?,
+                tramers_price_currency = ?,
                 traction = ?,
                 rental_km_limit = ?,
                 over_km_price = ?,
+                over_km_price_currency = ?,
                 heavy_damage_record = ?
             WHERE id = ?
         ";
@@ -162,6 +172,7 @@ if (isset($_GET["action"])) {
             $_POST['model'] ?? null,
             $_POST['year'] ?? null,
             $_POST['price'] ?? null,
+            $_POST['price_currency'] ?? null,
             isset($_POST['is_for_rent']) ? (int)$_POST['is_for_rent'] : 0,
             isset($_POST['is_for_sale']) ? (int)$_POST['is_for_sale'] : 0,
             $_POST['status'] ?? 'available',
@@ -182,11 +193,15 @@ if (isset($_GET["action"])) {
             $_POST['description'] ?? null,
             $_POST['rental_type'] ?? 'none',
             $_POST['min_rent_duration'] ?? null,
+            $_POST['min_rent_duration_unit'] ?? null,
             $_POST['max_rent_duration'] ?? null,
+            $_POST['max_rent_duration_unit'] ?? null,
             $_POST['tramers_price'] ?? null,
+            $_POST['tramers_price_currency'] ?? null,
             $_POST['traction'] ?? null,
             $_POST['rental_km_limit'] ?? null,
             $_POST['over_km_price'] ?? null,
+            $_POST['over_km_price_currency'] ?? null,
             isset($_POST['heavy_damage_record']) ? (int)$_POST['heavy_damage_record'] : 0,
             $id
         ]);
@@ -228,7 +243,7 @@ if (isset($_GET["action"])) {
             echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['name']) . '</option>';
         }
     }
-    elseif ($_GET['action'] === 'get_vehicles') {
+    elseif ($_GET['action'] === 'get_vehicles_v1') {
 
         $columns = [
             'id', 'title', 'brand', 'model', 'year', 'price',
@@ -337,6 +352,188 @@ if (isset($_GET["action"])) {
             "data" => $data
         ]);
     }
+    elseif ($_GET['action'] === 'get_vehicles') {
+
+        $columns = [
+            'id', 'title', 'brand', 'model', 'year', 'price', 'price_currency',
+            'is_for_rent', 'is_for_sale', 'status', 'created_at', 'plate',
+            'is_plate_hidden', 'km', 'is_km_hidden', 'location_address',
+            'location_country_id', 'location_city_id', 'location_district_id',
+            'gear_type', 'fuel_type', 'engine_size', 'horse_power', 'color',
+            'body_type', 'description', 'rental_type',
+            'min_rent_duration', 'min_rent_duration_unit',
+            'max_rent_duration', 'max_rent_duration_unit',
+            'tramers_price', 'tramers_price_currency',
+            'traction', 'rental_km_limit',
+            'over_km_price', 'over_km_price_currency',
+            'heavy_damage_record'
+        ];
+
+
+        $draw = intval($_POST['draw'] ?? 1);
+        $start = intval($_POST['start'] ?? 0);
+        $length = intval($_POST['length'] ?? 10);
+        if ($length === -1) {
+            $length = 1000000;
+        }
+        $searchValue = $_POST['search']['value'] ?? '';
+
+        $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
+        $orderColumn = $columns[$orderColumnIndex] ?? 'id';
+        $orderDir = $_POST['order'][0]['dir'] ?? 'desc';
+        $orderDir = strtolower($orderDir) === 'asc' ? 'ASC' : 'DESC';
+
+        $totalRecords = $db->query("SELECT COUNT(*) FROM vehicles WHERE company_id = {$_SESSION["selected_company_id"]}")->fetchColumn();
+
+        $searchSql = "WHERE v.company_id = :company_id ";
+        $searchParams = [":company_id" => $_SESSION["selected_company_id"]];
+
+        if ($searchValue !== '') {
+            $searchSqlParts = [];
+            foreach ($columns as $index => $col) {
+                $paramName = ":search_$index";
+                $searchSqlParts[] = "v.$col LIKE $paramName";
+                $searchParams[$paramName] = "%$searchValue%";
+            }
+            $searchSql .= "AND (" . implode(" OR ", $searchSqlParts) . ") ";
+        }
+
+        if (!empty($_POST['filters']) && is_array($_POST['filters'])) {
+            foreach ($_POST['filters'] as $field => $value) {
+                if ($value === '' || $value === null) continue;
+
+                if (str_ends_with($field, '_min')) {
+                    $col = substr($field, 0, -4);
+                    if (in_array($col, $columns)) {
+                        $paramName = ":{$col}_min";
+                        $searchSql .= "AND v.`$col` >= $paramName ";
+                        $searchParams[$paramName] = $value;
+                    }
+                } elseif (str_ends_with($field, '_max')) {
+                    $col = substr($field, 0, -4);
+                    if (in_array($col, $columns)) {
+                        $paramName = ":{$col}_max";
+                        $searchSql .= "AND v.`$col` <= $paramName ";
+                        $searchParams[$paramName] = $value;
+                    }
+                } elseif (in_array($field, $columns)) {
+                    $paramName = ":$field";
+                    if (is_numeric($value)) {
+                        $searchSql .= "AND v.`$field` = $paramName ";
+                        $searchParams[$paramName] = $value;
+                    } else {
+                        $searchSql .= "AND v.`$field` LIKE $paramName ";
+                        $searchParams[$paramName] = '%' . $value . '%';
+                    }
+                }
+            }
+        }
+
+        $stmt = $db->prepare("SELECT COUNT(*) FROM vehicles v $searchSql");
+        $stmt->execute($searchParams);
+        $filteredRecords = $stmt->fetchColumn();
+
+        $start = (int)$start;
+        $length = (int)$length;
+
+        $sql = "
+            SELECT 
+                v.*, 
+                c.name AS location_country_name,
+                ci.name AS location_city_name,
+                d.name AS location_district_name
+            FROM vehicles v
+            LEFT JOIN countries c ON v.location_country_id = c.id
+            LEFT JOIN cities ci ON v.location_city_id = ci.id
+            LEFT JOIN districts d ON v.location_district_id = d.id
+            $searchSql
+            ORDER BY v.$orderColumn $orderDir
+            LIMIT $start, $length
+        ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($searchParams);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($data as &$row) {
+            foreach (['price', 'tramers_price', 'over_km_price'] as $priceField) {
+                if (isset($row[$priceField])) {
+                    $currencyField = $priceField . '_currency';
+                    $currencySymbol = getCurrencySymbol($row[$currencyField]) ?? '₺';
+                    $row[$priceField] = number_format($row[$priceField], 2, ',', '.') . ' ' . $currencySymbol;
+                }
+            }
+
+            if (isset($row['created_at'])) {
+                $row['created_at'] = date('d/m/Y H:i:s', strtotime($row['created_at']));
+            }
+
+            $trEnums = [
+                'gear_type' => [
+                    'manual' => 'Manuel',
+                    'automatic' => 'Otomatik',
+                    'semi-automatic' => 'Yarı Otomatik'
+                ],
+                'fuel_type' => [
+                    'petrol' => 'Benzin',
+                    'diesel' => 'Dizel',
+                    'lpg' => 'LPG',
+                    'electric' => 'Elektrik',
+                    'hybrid' => 'Hibrit'
+                ],
+                'body_type' => [
+                    'sedan' => 'Sedan',
+                    'hatchback' => 'Hatchback',
+                    'suv' => 'SUV',
+                    'pickup' => 'Pickup',
+                    'coupe' => 'Coupe',
+                    'convertible' => 'Cabrio',
+                    'van' => 'Van',
+                    'other' => 'Diğer'
+                ],
+                'rental_type' => [
+                    'daily' => 'Günlük',
+                    'weekly' => 'Haftalık',
+                    'monthly' => 'Aylık',
+                    'none' => 'Yok'
+                ],
+                'status' => [
+                    'available' => 'Mevcut',
+                    'reserved' => 'Rezerve',
+                    'sold' => 'Satıldı',
+                    'rented' => 'Kirada'
+                ]
+            ];
+
+            foreach ($trEnums as $field => $map) {
+                if (isset($row[$field]) && isset($map[$row[$field]])) {
+                    $row[$field] = $map[$row[$field]];
+                }
+            }
+
+            foreach (['min_rent_duration', 'max_rent_duration'] as $durationField) {
+                $unitField = $durationField . '_unit';
+                if (isset($row[$durationField])) {
+                    $unit = getDurationUnitLabel($row[$unitField]) ?? 'Gün';
+                    $row[$durationField] .= ' ' . $unit;
+                }
+            }
+
+
+            if (isset($row['traction'])) {
+                $row['traction'] = strtoupper($row['traction']);
+            }
+        }
+        unset($row);
+
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => intval($totalRecords),
+            "recordsFiltered" => intval($filteredRecords),
+            "data" => $data
+        ]);
+    }
+
     elseif ($_GET['action'] === 'save_columns') {
         $selectedColumns = $_POST['columns'] ?? [];
 
