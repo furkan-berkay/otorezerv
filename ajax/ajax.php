@@ -95,8 +95,52 @@ if (isset($_GET["action"])) {
             isset($_POST['heavy_damage_record']) ? (int)$_POST['heavy_damage_record'] : 0
         ]);
 
+
+
         if ($result) {
             $lastInsertId = $db->lastInsertId(); // Eklenen aracın ID'si
+
+            $baseUploadDir = __DIR__ . '/../uploads/vehicles/';
+            $uploadDir = $baseUploadDir . $lastInsertId . '/photo/';
+
+            if (!empty($_FILES['vehicle_images']) && isset($lastInsertId)) {
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                // Birden fazla dosya olabilir
+                foreach ($_FILES['vehicle_images']['tmp_name'] as $index => $tmpName) {
+                    if ($_FILES['vehicle_images']['error'][$index] === UPLOAD_ERR_OK) {
+                        $originalName = basename($_FILES['vehicle_images']['name'][$index]);
+                        $fileSize = $_FILES['vehicle_images']['size'][$index];
+                        $fileType = $_FILES['vehicle_images']['type'][$index];
+
+                        // Dosya adı güvenli hale getirme
+                        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                        $newFileName = uniqid('vehicle_') . '.' . $ext;
+                        $destination = $uploadDir . $newFileName;
+
+                        if (move_uploaded_file($tmpName, $destination)) {
+                            // Dosya başarıyla yüklendi, kayıt ekle
+                            $stmtFile = $db->prepare("
+                                INSERT INTO files 
+                                (file_name, file_path, file_type, file_size, related_table, related_id, created_at)
+                                VALUES (?, ?, ?, ?, 'vehicles', ?, NOW())
+                            ");
+                            $stmtFile->execute([
+                                $originalName,
+                                'uploads/vehicles/' . $lastInsertId . "/photo/" . $newFileName, // Web'den erişilecek yol
+                                $fileType,
+                                $fileSize,
+                                $lastInsertId
+                            ]);
+                        }
+                        // else hata işlemi yapabilirsin
+                    }
+                }
+            }
+
+
             echo json_encode(['success' => true, 'id' => $lastInsertId ?? null]);
         }
         else {
@@ -207,6 +251,71 @@ if (isset($_GET["action"])) {
         ]);
 
         if ($result) {
+
+            $baseUploadDir = __DIR__ . '/../uploads/vehicles/';
+            $uploadDir = $baseUploadDir . $id . '/photo/';
+
+            // Yeni yüklenen görselleri kaydet
+            if (!empty($_FILES['vehicle_images']) && is_array($_FILES['vehicle_images']['tmp_name'])) {
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                foreach ($_FILES['vehicle_images']['tmp_name'] as $index => $tmpName) {
+                    if ($_FILES['vehicle_images']['error'][$index] === UPLOAD_ERR_OK) {
+                        $originalName = basename($_FILES['vehicle_images']['name'][$index]);
+                        $fileSize = $_FILES['vehicle_images']['size'][$index];
+                        $fileType = $_FILES['vehicle_images']['type'][$index];
+                        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+                        $newFileName = uniqid('vehicle_') . '.' . $ext;
+                        $destination = $uploadDir . $newFileName;
+
+                        if (move_uploaded_file($tmpName, $destination)) {
+                            // DB'ye kaydet (web yolu)
+                            $stmtFile = $db->prepare("
+                            INSERT INTO files 
+                            (file_name, file_path, file_type, file_size, related_table, related_id, created_at)
+                            VALUES (?, ?, ?, ?, 'vehicles', ?, NOW())
+                        ");
+                            $webPath = 'uploads/vehicles/' . $id . '/photo/' . $newFileName;
+                            $stmtFile->execute([
+                                $originalName,
+                                $webPath,
+                                $fileType,
+                                $fileSize,
+                                $id
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Silinmesi istenen dosyalar varsa sil
+            if (!empty($_POST['deleted_images'])) {
+                $deletedIds = array_filter(explode(',', $_POST['deleted_images']), function($v) { return is_numeric($v); });
+
+                if (!empty($deletedIds)) {
+                    $placeholders = implode(',', array_fill(0, count($deletedIds), '?'));
+
+                    // Önce dosya yollarını al
+                    $stmtSelect = $db->prepare("SELECT file_path FROM files WHERE id IN ($placeholders) AND related_table='vehicles' AND related_id = ?");
+                    $stmtSelect->execute(array_merge($deletedIds, [$id]));
+                    $filesToDelete = $stmtSelect->fetchAll(PDO::FETCH_COLUMN);
+
+                    // Sunucudan sil
+                    foreach ($filesToDelete as $filePath) {
+                        $fullPath = __DIR__ . '/../' . $filePath;
+                        if (file_exists($fullPath)) {
+                            unlink($fullPath);
+                        }
+                    }
+
+                    // DB'den sil
+                    $stmtDelete = $db->prepare("DELETE FROM files WHERE id IN ($placeholders) AND related_table='vehicles' AND related_id = ?");
+                    $stmtDelete->execute(array_merge($deletedIds, [$id]));
+                }
+            }
+
             echo json_encode([
                 'success' => true,
                 'id' => $id ?? null // veya $inserted_id ya da $_POST['id']
@@ -455,6 +564,45 @@ if (isset($_GET["action"])) {
         $stmt->execute($searchParams);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
+        $trEnums = [
+            'gear_type' => [
+                'manual' => 'Manuel',
+                'automatic' => 'Otomatik',
+                'semi-automatic' => 'Yarı Otomatik'
+            ],
+            'fuel_type' => [
+                'petrol' => 'Benzin',
+                'diesel' => 'Dizel',
+                'lpg' => 'LPG',
+                'electric' => 'Elektrik',
+                'hybrid' => 'Hibrit'
+            ],
+            'body_type' => [
+                'sedan' => 'Sedan',
+                'hatchback' => 'Hatchback',
+                'suv' => 'SUV',
+                'pickup' => 'Pickup',
+                'coupe' => 'Coupe',
+                'convertible' => 'Cabrio',
+                'van' => 'Van',
+                'other' => 'Diğer'
+            ],
+            'rental_type' => [
+                'daily' => 'Günlük',
+                'weekly' => 'Haftalık',
+                'monthly' => 'Aylık',
+                'none' => 'Yok'
+            ],
+            'status' => [
+                'available' => 'Mevcut',
+                'reserved' => 'Rezerve',
+                'sold' => 'Satıldı',
+                'rented' => 'Kirada'
+            ]
+        ];
+
+
         foreach ($data as &$row) {
             foreach (['price', 'tramers_price', 'over_km_price'] as $priceField) {
                 if (isset($row[$priceField])) {
@@ -467,43 +615,6 @@ if (isset($_GET["action"])) {
             if (isset($row['created_at'])) {
                 $row['created_at'] = date('d/m/Y H:i:s', strtotime($row['created_at']));
             }
-
-            $trEnums = [
-                'gear_type' => [
-                    'manual' => 'Manuel',
-                    'automatic' => 'Otomatik',
-                    'semi-automatic' => 'Yarı Otomatik'
-                ],
-                'fuel_type' => [
-                    'petrol' => 'Benzin',
-                    'diesel' => 'Dizel',
-                    'lpg' => 'LPG',
-                    'electric' => 'Elektrik',
-                    'hybrid' => 'Hibrit'
-                ],
-                'body_type' => [
-                    'sedan' => 'Sedan',
-                    'hatchback' => 'Hatchback',
-                    'suv' => 'SUV',
-                    'pickup' => 'Pickup',
-                    'coupe' => 'Coupe',
-                    'convertible' => 'Cabrio',
-                    'van' => 'Van',
-                    'other' => 'Diğer'
-                ],
-                'rental_type' => [
-                    'daily' => 'Günlük',
-                    'weekly' => 'Haftalık',
-                    'monthly' => 'Aylık',
-                    'none' => 'Yok'
-                ],
-                'status' => [
-                    'available' => 'Mevcut',
-                    'reserved' => 'Rezerve',
-                    'sold' => 'Satıldı',
-                    'rented' => 'Kirada'
-                ]
-            ];
 
             foreach ($trEnums as $field => $map) {
                 if (isset($row[$field]) && isset($map[$row[$field]])) {
@@ -519,10 +630,44 @@ if (isset($_GET["action"])) {
                 }
             }
 
-
             if (isset($row['traction'])) {
                 $row['traction'] = strtoupper($row['traction']);
             }
+
+            if (isset($row['color'])) {
+                $colorHex = strtoupper($row['color']);
+
+                if (isset($predefinedColors[$colorHex])) {
+                    // Ön tanımlı renkse: isim + renk kutusu
+                    $colorLabel = $predefinedColors[$colorHex];
+                } else {
+                    // Diğer renk: hex kodunu koru
+                    $colorLabel = "Diğer";
+                }
+
+                // HTML olarak: renk kutusu + boşluk + renk adı
+                //$row['color'] = '<span style="display:inline-block;width:16px;height:16px;background-color:' . $colorHex . ';border:1px solid #ccc;margin-right:6px;"></span> ' . $colorLabel;
+                $row['color'] = '
+                    <span 
+                        style="display:inline-block;width:16px;height:16px;background-color:' . $colorHex . ';border:1px solid #ccc;margin-right:6px;cursor:pointer;" 
+                        onclick="
+                            toastr.options = {
+                                timeOut: 0,
+                                extendedTimeOut: 0,
+                                closeButton: true
+                            };
+                            navigator.clipboard.writeText(\'' . $colorHex . '\').then(() => {
+                                toastr.success(\'Renk kodu kopyalandı: ' . $colorHex . '\');
+                            });
+                        "
+                        title="Renk kodunu kopyala"
+                    ></span> ' . $colorLabel;
+
+
+
+
+            }
+
         }
         unset($row);
 
@@ -533,7 +678,6 @@ if (isset($_GET["action"])) {
             "data" => $data
         ]);
     }
-
     elseif ($_GET['action'] === 'save_columns') {
         $selectedColumns = $_POST['columns'] ?? [];
 

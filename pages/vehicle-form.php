@@ -44,6 +44,12 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
     $ajax_url = "set_vehicle";
     $edit_inp = "<input type='hidden' name='upd' value='".$id."'>";
     $edit_data = $db->query("SELECT * FROM vehicles WHERE id = ".$id)->fetch(PDO::FETCH_ASSOC);
+
+    // Düzenleme modunda, örneğin araç ID'si $vehicleId ise
+    $stmt = $db->prepare("SELECT id, file_path FROM files WHERE related_table = 'vehicles' AND related_id = ?");
+    $stmt->execute([$id]);
+    $existingImages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 }
 
 ?>
@@ -118,16 +124,6 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                 </div>
 
                                 <div class="col-md-4">
-                                    <?php
-                                        $predefinedColors = [
-                                            "#000000" => "Siyah",
-                                            "#FFFFFF" => "Beyaz",
-                                            "#808080" => "Gri",
-                                            "#FF0000" => "Kırmızı",
-                                            "#0000FF" => "Mavi",
-                                            "#8B0000" => "Bordo",
-                                        ];
-                                    ?>
                                     <label for="color" class="form-label">Renk <small style="color:red;">(Ana renk seçin veya özel renk için "Diğer..." seçeneğini kullanın)</small></label>
 
                                     <div class="input-group">
@@ -179,9 +175,6 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                     </select>
                                 </div>
 
-                                <div class="col-md-4">
-                                    <p>görsel yükleme</p>
-                                </div>
 
                                 <hr class="my-4" />
 
@@ -320,10 +313,6 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                             required>
                                         <option value="">Ülke Seçin</option>
                                     </select>
-
-                                    <!--<select id="country" name="country" class="form-control select2" style="width: 100%;placeholder="Ara.." >
-                                        <option value="">Ülke Seçin</option>
-                                    </select>-->
                                 </div>
 
                                 <div class="col-md-4">
@@ -383,245 +372,83 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
 
                                 <hr class="my-4" />
 
-                                <!-- Açıklama -->
-                                <h3 class="mb-3">Araç Açıklaması</h3>
+                                <div class="container">
+                                    <div class="row align-items-start">
+                                        <div class="col-md-6">
+                                            <!-- Araç Açıklaması -->
+                                            <h3 class="mb-3">Araç Açıklaması</h3>
+                                            <textarea id="description" name="description" class="form-control" rows="6"><?= htmlspecialchars($edit_data["description"] ?? "") ?></textarea>
+                                        </div>
 
-                                <div class="col-md-12">
-                                    <textarea id="description" name="description" class="form-control" rows="6"><?= $edit_data["description"] ?? "" ?></textarea>
+                                        <!-- Dikey Çizgi -->
+                                        <div class="col-md-1 d-flex justify-content-center">
+                                            <div style="border-left:1px solid #ddd; height:100%; min-height:250px;"></div>
+                                        </div>
+
+                                        <div class="col-md-5">
+                                            <!-- Araç Görselleri -->
+                                            <h3 class="mb-3">Araç Görselleri</h3>
+                                            <div id="drop-area"
+                                                 class="border border-primary rounded p-3 text-center"
+                                                 style="min-height: 150px; cursor: pointer;"
+                                                 onclick="$('#vehicle_images').click()">
+                                                <p class="text-muted mb-0">Görselleri buraya sürükleyin ya da tıklayıp seçin</p>
+                                            </div>
+                                            <div class="form-text mb-3">
+                                                Yalnızca JPG veya PNG formatı. Maksimum 5MB. En az 1 görsel zorunludur.
+                                            </div>
+
+                                            <div id="preview" class="d-flex flex-wrap"></div>
+
+                                            <input type="file" id="vehicle_images" name="vehicle_images[]" accept=".jpg,.jpeg,.png" multiple class="d-none">
+                                            <input type="hidden" name="deleted_images" id="deleted_images" value="">
+                                        </div>
+                                    </div>
                                 </div>
-
-
-
                             </div>
                         </div>
-
                         <div class="card-footer text-end">
                             <button type="submit" class="btn btn-info">Araç <?=$page_text?></button>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    (() => {
-        'use strict';
+<!-- Görsel Önizleme Modalı -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-labelledby="imagePreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- büyük modal -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imagePreviewModalLabel">Görsel Önizleme</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body text-center position-relative">
+                <img src="" id="imagePreviewModalImg" style="max-width: 100%; height: auto;" alt="Önizleme">
 
-        const form = document.getElementById('vehicleForm');
-
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            if (!form.checkValidity()) {
-                event.stopPropagation();
-                form.classList.add('was-validated');
-                return;
-            }
-
-            for (var instance in CKEDITOR.instances) {
-                CKEDITOR.instances[instance].updateElement();
-            }
-
-            // Ajax submit
-            $.ajax({
-                url: <?= BASE_URL ?> + "ajax/ajax?action=<?=$ajax_url?>",
-                method: "POST",
-                data: $(form).serialize(),
-                dataType: "json",
-                success: function(response) {
-                    if (response.success) {
-                        toastr.success("Araç başarıyla eklendi!");
-                        setTimeout(() => {
-                            if (response.id) {
-                                //window.location.href = 'vehicle-form?id=' + response.id;
-                            }
-                            else {
-                                //window.location.href = 'vehicle-form';
-                            }
-                        }, 1000);
-                    }
-                    else {
-                        toastr.error("Hata: " + response.error);
-                    }
-                },
-                error: function() {
-                    toastr.error("Sunucu hatası. Lütfen tekrar deneyin.");
-                }
-            });
-        });
-    })();
-</script>
-
+                <button type="button" class="btn btn-secondary position-absolute top-50 start-0 translate-middle-y" id="prevImageBtn" style="z-index: 1055;">&#8592;</button>
+                <button type="button" class="btn btn-secondary position-absolute top-50 end-0 translate-middle-y" id="nextImageBtn" style="z-index: 1055;">&#8594;</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script src="<?= BASE_URL ?>assets/ckeditor4-4.22.1/ckeditor.js"></script>
-
-<script>
-    CKEDITOR.replace('description', {
-        removeButtons: 'Image,Table,Source,Flash,Smiley,SpecialChar,PageBreak,Iframe,Anchor,Save,NewPage,Preview,Print,Cut,Copy,Paste,PasteText,PasteFromWord,Undo,Redo,Find,Replace,SelectAll,Scayt,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,ShowBlocks,About',
-        toolbar: [
-            { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike' ] },
-            { name: 'paragraph',   items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent' ] },
-            { name: 'styles',      items: [ 'Format' ] },
-            { name: 'links',       items: [ 'Link', 'Unlink' ] },
-            { name: 'tools',       items: [ 'Maximize' ] }
-        ],
-        removePlugins: 'elementspath',
-        resize_enabled: false,
-        height: 200
-    });
-</script>
-
-
 
 <!-- Select2 CSS ve JS (AdminLTE ile uyumlu) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+
+
 <script>
-
-    $(document).ready(function () {
-        $('.select2').select2();
-
-        const $country = $('#location_country_id');
-        const $city = $('#location_city_id');
-        const $district = $('#location_district_id');
-
-        const selectedCountry = $country.data('selected-country');
-        const selectedCity = $country.data('selected-city');
-        const selectedDistrict = $country.data('selected-district');
-
-        // Ülkeleri getir
-        $.post("<?= BASE_URL ?>ajax/ajax?action=getCountries", {}, function (data) {
-            $country.append(data);
-
-            if (selectedCountry) {
-                $country.val(selectedCountry).trigger('change');
-
-                // Şehirleri getir
-                $.post("<?= BASE_URL ?>ajax/ajax?action=getCities", { country_id: selectedCountry }, function (cityData) {
-                    $city.empty().append('<option value="">İl Seçin</option>').append(cityData).prop('disabled', false);
-
-                    if (selectedCity) {
-                        $city.val(selectedCity).trigger('change');
-
-                        // İlçeleri getir
-                        $.post("<?= BASE_URL ?>ajax/ajax?action=getDistricts", { city_id: selectedCity }, function (districtData) {
-                            $district.empty().append('<option value="">İlçe Seçin</option>').append(districtData).prop('disabled', false);
-
-                            if (selectedDistrict) {
-                                $district.val(selectedDistrict).trigger('change');
-                            }
-                        });
-                    }
-                });
-            }
-        });
-
-        // Normal değişimlerde çalışacaklar
-        $country.on('change', function () {
-            const countryId = $(this).val();
-            $city.prop('disabled', true).empty().append('<option value="">İl Seçin</option>');
-            $district.prop('disabled', true).empty().append('<option value="">İlçe Seçin</option>');
-
-            if (countryId) {
-                $.post("<?= BASE_URL ?>ajax/ajax?action=getCities", { country_id: countryId }, function (data) {
-                    $city.append(data).prop('disabled', false);
-                });
-            }
-        });
-
-        $city.on('change', function () {
-            const cityId = $(this).val();
-            $district.prop('disabled', true).empty().append('<option value="">İlçe Seçin</option>');
-
-            if (cityId) {
-                $.post("<?= BASE_URL ?>ajax/ajax?action=getDistricts", { city_id: cityId }, function (data) {
-                    $district.append(data).prop('disabled', false);
-                });
-            }
-        });
-
-        $('#plate').on('input', function () {
-            $(this).val($(this).val().toUpperCase().replace(/\s/g, ''));
-        });
-
-
-        const $colorInput = $('#color-picker');
-        const $colorHidden = $('#color-hidden');
-
-        function updateColorPicker() {
-            const selected = $('#color-select').val();
-
-            if (selected === 'custom') {
-                $colorInput.prop('disabled', false);
-                if (!$colorInput.val()) {
-                    $colorInput.val('#000000');
-                }
-                $colorHidden.val($colorInput.val());
-            } else if (selected !== '') {
-                $colorInput.val(selected).prop('disabled', true);
-                $colorHidden.val(selected);
-            } else {
-                $colorInput.val('#000000').prop('disabled', true);
-                $colorHidden.val('');
-            }
-        }
-
-        $('#color-select').on('change', updateColorPicker);
-
-        $colorInput.on('input', function () {
-            // Custom color seçiliyken kullanıcı renk değiştirirse hidden input'u güncelle
-            if ($('#color-select').val() === 'custom') {
-                $colorHidden.val($(this).val());
-            }
-        });
-
-        updateColorPicker(); // Sayfa yüklenince ilk durumu ayarla
-
-    });
-
+    var ajax_url = "<?=$ajax_url?>";
+    var existingImagesPHP = <?= json_encode($existingImages, JSON_UNESCAPED_UNICODE) ?>;
 </script>
 
-<!--
-<script>
-    $(document).ready(function () {
-        $('.select2').select2();
-
-        // Ülke listesini getir
-        $.post(<?php /*= BASE_URL */?> + "ajax/ajax.php?action=getCountries", { }, function (data) {
-            $('#country').append(data);
-        });
-
-        // İl verisi
-        $('#country').on('change', function () {
-            const countryId = $(this).val();
-            $('#city').prop('disabled', true).empty().append('<option value="">İl Seçin</option>');
-            $('#district').prop('disabled', true).empty().append('<option value="">İlçe Seçin</option>');
-
-            if (countryId) {
-                $.post(<?php /*= BASE_URL */?> + "ajax/ajax.php?action=getCities", { country_id: countryId }, function (data) {
-                    $('#city').append(data).prop('disabled', false);
-                });
-            }
-        });
-
-        // İlçe verisi
-        $('#city').on('change', function () {
-            const cityId = $(this).val();
-            $('#district').prop('disabled', true).empty().append('<option value="">İlçe Seçin</option>');
-
-            if (cityId) {
-                $.post(<?php /*= BASE_URL */?> + "ajax/ajax.php?action=getDistricts", { city_id: cityId }, function (data) {
-                    $('#district').append(data).prop('disabled', false);
-                });
-            }
-        });
-    });
-</script>
--->
+<script src="<?= BASE_URL ?>assets/vehicle-form.js"></script>
 
 <?php include("../includes/footer.php"); ?>

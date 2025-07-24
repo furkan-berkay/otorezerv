@@ -1,5 +1,14 @@
 <?php
 
+$predefinedColors = [
+    "#000000" => "Siyah",
+    "#FFFFFF" => "Beyaz",
+    "#808080" => "Gri",
+    "#FF0000" => "Kırmızı",
+    "#0000FF" => "Mavi",
+    "#8B0000" => "Bordo",
+];
+
 function getCompanyName($companyId) {
     global $db;
     $stmt = $db->prepare("SELECT name FROM companies WHERE id = ?");

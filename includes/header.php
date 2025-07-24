@@ -29,6 +29,7 @@
 
     <script>
         window.currentCompanyId = <?= json_encode($_SESSION["selected_company_id"] ?? null) ?>;
+        const BASE_URL = "<?= BASE_URL ?>";
     </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
