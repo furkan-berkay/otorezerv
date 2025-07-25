@@ -22,3 +22,14 @@ error_reporting(E_ALL);
 
 // Giriş kontrolü varsa burada yapılabilir
 // if (!isset($_SESSION['login_user_id'])) header("Location: login.php");
+
+$public_pages = ['login.php', 'register.php'];
+
+$current_file = basename($_SERVER['PHP_SELF']);
+
+if (!in_array($current_file, $public_pages)) {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: ' . BASE_URL . 'login');
+        exit;
+    }
+}
