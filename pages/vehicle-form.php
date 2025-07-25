@@ -39,6 +39,8 @@ $breadcrumb_home_link = "pages/vehicles";
 $edit_data = [];
 $edit_inp = "";
 $ajax_url = "add_vehicle";
+$existingImages = [];
+$damage_data = [];
 if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
     $id = intval($_GET["id"]);
     $ajax_url = "set_vehicle";
@@ -50,10 +52,37 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
     $stmt->execute([$id]);
     $existingImages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $stmt_2 = $db->prepare("SELECT * FROM vehicles_damage WHERE vehicle_id = ?");
+    $stmt_2->execute([$id]);
+    $row = $stmt_2->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        foreach ($damageParts as $part) {
+            $value = $row[$part] ?? 'original';
+
+            if ($value === 'replaced') {
+                $damage_data[$part] = 'changed-new';
+            }
+            else if ($value === 'local_paint') {
+                $damage_data[$part] = 'localpainted-new';
+            }
+            else if ($value === 'painted') {
+                $damage_data[$part] = 'painted-new';
+            }
+            else {
+                $damage_data[$part] = 'original-new';
+            }
+        }
+    }
+
 }
+
+
 
 ?>
 
+
+<link rel="stylesheet" href="/otorezerv/assets/vehicle-damage.css"/>
 
 <div class="app-content">
     <div class="container-fluid">
@@ -341,7 +370,7 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
 
                                 <div class="col-md-3">
                                     <label for="engine_size" class="form-label">Motor Hacmi (Litre)</label>
-                                    <input type="number" step="0.01" id="engine_size" name="engine_size" class="form-control" min="0" max="10" value="<?= $edit_data["engine_size"] ?? "" ?>">
+                                    <input type="number" step="0.01" id="engine_size" name="engine_size" class="form-control" min="0" max="2000" value="<?= $edit_data["engine_size"] ?? "" ?>">
                                 </div>
 
                                 <div class="col-md-3">
@@ -405,6 +434,68 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
                                         </div>
                                     </div>
                                 </div>
+
+                                <hr class="my-4" />
+
+                                <h3 class="mb-3">Boyalı veya Değişen Parça</h3>
+
+                                <div class="classified-pair custom-area col-md-12">
+                                    <div class="damage-area">
+                                        <div class="car-damage-info ">
+                                            <span class="original">Orijinal</span>
+                                            <span class="local-painted-new">Lokal Boyalı</span>
+                                            <span class="painted-new">Boyalı</span>
+                                            <span class="changed-new">Değişen</span>
+                                        </div>
+                                        <div class="car-parts">
+                                            <div class="front-bumper original-new carClick" data-part="Ön Tampon">
+                                                <span></span>
+                                            </div>
+                                            <div class="front-hood original-new carClick" data-part="Ön Kaput">
+                                                <span></span>
+                                            </div>
+                                            <div class="roof original-new carClick" data-part="Tavan">
+                                                <span></span>
+                                            </div>
+                                            <div class="front-right-mudguard original-new carClick" data-part="Ön Sağ Çamurluk">
+                                                <span></span>
+                                            </div>
+                                            <div class="front-right-door original-new carClick" data-part="Ön Sağ Kapı">
+                                                <span></span>
+                                            </div>
+                                            <div class="rear-right-door original-new carClick" data-part="Arka Sağ Kapı">
+                                                <span></span>
+                                            </div>
+                                            <div class="rear-right-mudguard original-new carClick" data-part="Arka Sağ Çamurluk">
+                                                <span></span>
+                                            </div>
+                                            <div class="front-left-mudguard original-new carClick" data-part="Ön Sol Çamurluk">
+                                                <span></span>
+                                            </div>
+                                            <div class="front-left-door original-new carClick" data-part="Ön Sol Kapı">
+                                                <span></span>
+                                            </div>
+                                            <div class="rear-left-door original-new carClick" data-part="Arka Sol Kapı">
+                                                <span></span>
+                                            </div>
+                                            <div class="rear-left-mudguard original-new carClick" data-part="Arka Sol Çamurluk">
+                                                <span></span>
+                                            </div>
+                                            <div class="rear-hood original-new carClick" data-part="Arka Kaput">
+                                                <span></span>
+                                            </div>
+                                            <div class="rear-bumper original-new carClick" data-part="Arka Tampon">
+                                                <span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="car-damage-info-list">
+                                        <ul>
+                                            <li class="pair-title other-pair">Orijinal</li>
+                                            <li class="selected-damage">Aracın tüm parçaları orijinaldır. Değişen ve boyalı parçası bulunmamaktadır.</li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer text-end">
@@ -435,6 +526,37 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
     </div>
 </div>
 
+<!-- Durum Seçim Modalı -->
+<div class="modal fade" id="damageModal" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content p-3">
+            <div class="modal-header p-0">
+                <h5 class="modal-title" id="damageModalLabel">Parça Durumu Seç</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="damageRadio" id="radioO" value="original-new">
+                    <label class="form-check-label" for="radioO">Orijinal (O)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="damageRadio" id="radioLB" value="localpainted-new">
+                    <label class="form-check-label" for="radioLB">Lokal Boyalı (LB)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="damageRadio" id="radioB" value="painted-new">
+                    <label class="form-check-label" for="radioB">Boyalı (B)</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="damageRadio" id="radioD" value="changed-new">
+                    <label class="form-check-label" for="radioD">Değişen (D)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 <script src="<?= BASE_URL ?>assets/ckeditor4-4.22.1/ckeditor.js"></script>
 
@@ -447,7 +569,9 @@ if(isset($_GET["id"]) && intval($_GET["id"]) > 0) {
 <script>
     var ajax_url = "<?=$ajax_url?>";
     var existingImagesPHP = <?= json_encode($existingImages, JSON_UNESCAPED_UNICODE) ?>;
+    var damageData = <?= json_encode($damage_data, JSON_UNESCAPED_UNICODE) ?>;
 </script>
+
 
 <script src="<?= BASE_URL ?>assets/vehicle-form.js"></script>
 

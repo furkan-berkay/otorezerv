@@ -9,6 +9,14 @@ $predefinedColors = [
     "#8B0000" => "Bordo",
 ];
 
+
+$damageParts = [
+    "front_bumper", "front_hood", "roof", "front_right_mudguard",
+    "front_right_door", "rear_right_door", "rear_right_mudguard",
+    "front_left_mudguard", "front_left_door", "rear_left_door",
+    "rear_left_mudguard", "rear_hood", "rear_bumper"
+];
+
 function getCompanyName($companyId) {
     global $db;
     $stmt = $db->prepare("SELECT name FROM companies WHERE id = ?");

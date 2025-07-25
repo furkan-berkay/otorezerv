@@ -1,0 +1,799 @@
+
+.damage-area {
+    padding: 0;
+    margin: 0 50px
+}
+
+.car-damage-info-list {
+    display: block;
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -o-box-pack: justify;
+    -ms-flex-pack: justify;
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+    -webkit-box-lines: multiple;
+    -moz-box-lines: multiple;
+    -o-box-lines: multiple;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    width: 600px;
+    -ms-flex-line-pack: start;
+    -webkit-align-content: flex-start;
+    align-content: flex-start;
+    columns: 2 270px;
+    columns-gap: 1rem
+}
+
+.no-change {
+    color: #000
+}
+
+.classified-pair {
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-top: 40px;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: box;
+    display: flex;
+    zoom: 1;
+}
+
+.classified-pair:before,.classified-pair:after {
+    display: table;
+    content: "";
+    zoom:1}
+
+.classified-pair:after {
+    clear: both
+}
+
+.classified-pair.all-original {
+    padding: 20px 15px;
+    font-weight: bold;
+    text-align: left
+}
+
+.classified-pair ul {
+    text-align: left;
+    display: inline-block;
+    width: 270px;
+    background: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    vertical-align: top;
+    position: relative;
+    margin-bottom: 30px
+}
+
+.classified-pair ul li {
+    width: auto;
+    float: none;
+    display: table
+}
+
+.classified-pair ul li.no-change {
+    width: 208px
+}
+
+.classified-pair ul .pair-title {
+    font-weight: bold;
+    color: #333
+}
+
+.classified-pair ul .pair-title:before {
+    width: 7px;
+    height: 7px;
+    content: '';
+    top: 8px;
+    left: 8px;
+    position: absolute
+}
+
+.classified-pair ul .pair-title.changed:before {
+    background-color: #875de2
+}
+
+.classified-pair ul .pair-title.changed-new:before {
+    background-color: #ff5e39
+}
+
+.classified-pair ul .pair-title.painted:before {
+    background-color: #ff5e39
+}
+
+.classified-pair ul .pair-title.painted-new:before {
+    background-color: #4083c9
+}
+
+.classified-pair ul .pair-title.local-painted:before {
+    background-color: #ffa945
+}
+
+.classified-pair ul .pair-title.local-painted-new:before {
+    background-color: #fe9546
+}
+
+.classified-pair ul .pair-title.other-pair:before {
+    background-color: #ccc
+}
+
+.car-damage-info-list li {
+    float: left;
+    width: 210px;
+    height: 16px;
+    display: block;
+    padding: 5px 0 5px 20px;
+    font-weight: bold;
+    color: #a7a9ac
+}
+
+li .damage-description {
+    color: #999
+}
+
+li.selected-damage {
+    color: #333;
+    font-weight: 400;
+    position: relative;
+    background: 0
+}
+
+li.selected-damage:before {
+    content: '\2022';
+    position: absolute;
+    left: 8px;
+    top: 4px
+}
+
+.car-parts div {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: box;
+    display: flex;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -o-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -o-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    background-image: url('/otorezerv/assets/images/vehicle_new_orijinal_0.png')
+}
+
+.car-parts div span {
+    position: relative
+}
+
+.car-parts div.painted {
+    background-image: url('/otorezerv/assets/images/vehicle_boyali_0.png')
+}
+
+.car-parts div.painted-new {
+    background-image: url('/otorezerv/assets/images/vehicle_painted_0.png')
+}
+
+.car-parts div.changed {
+    background-image: url('/otorezerv/assets/images/vehicle_degisen:0.png')
+}
+
+.car-parts div.changed-new {
+    background-image: url('/otorezerv/assets/images/vehicle_changed_0.png')
+}
+
+.car-parts div.localpainted {
+    background-image: url('/otorezerv/assets/images/vehicle_lokal_boyali_0.png')
+}
+
+.car-parts div.localpainted-new {
+    background-image: url('/otorezerv/assets/images/vehicle_local_painted_0.png')
+}
+
+.car-parts .front-bumper {
+    background-position: -532px -252px;
+    width: 105px;
+    height: 22px
+}
+
+.car-parts .front-bumper.painted {
+    background-position: -532px -252px;
+    width: 105px;
+    height: 22px
+}
+
+.car-parts .front-bumper.changed {
+    background-position: -532px -252px;
+    width: 105px;
+    height: 22px
+}
+
+.car-parts .front-bumper.local-painted {
+    background-position: -530px -252px
+}
+
+.car-parts .front-left-mudguard {
+    background-position: -872px -43px;
+    width: 28px;
+    height: 43px
+}
+
+.car-parts .front-left-mudguard span {
+    top: -5px
+}
+
+.car-parts .front-left-mudguard.painted {
+    background-position: -872px -43px;
+    width: 28px;
+    height: 43px
+}
+
+.car-parts .front-left-mudguard.changed {
+    background-position: -872px -43px;
+    width: 28px;
+    height: 43px
+}
+
+.car-parts .front-left-mudguard.local-painted {
+    background-position: -868px -43px
+}
+
+.car-parts .front-right-mudguard {
+    background-position: -900px 0;
+    width: 28px;
+    height: 43px
+}
+
+.car-parts .front-right-mudguard span {
+    top: -5px
+}
+
+.car-parts .front-right-mudguard.painted {
+    background-position: -900px 0;
+    width: 28px;
+    height: 43px
+}
+
+.car-parts .front-right-mudguard.changed {
+    background-position: -900px 0;
+    width: 28px;
+    height: 43px
+}
+
+.car-parts .front-right-mudguard.local-painted {
+    background-position: -896px 0
+}
+
+.car-parts .front-hood {
+    background-position: 0 -682px;
+    width: 110px;
+    height: 80px
+}
+
+.car-parts .front-hood.painted {
+    background-position: 0 -682px;
+    width: 110px;
+    height: 80px
+}
+
+.car-parts .front-hood.changed {
+    background-position: 0 -682px;
+    width: 110px;
+    height: 80px
+}
+
+.car-parts .front-hood.local-painted {
+    background-position: 0 -675px
+}
+
+.car-parts .front-left-door {
+    background-position: -190px -473px;
+    width: 80px;
+    height: 104px
+}
+
+.car-parts .front-left-door span {
+    left: -15px
+}
+
+.car-parts .front-left-door.painted {
+    background-position: -190px -473px;
+    width: 80px;
+    height: 104px
+}
+
+.car-parts .front-left-door.changed {
+    background-position: -190px -473px;
+    width: 80px;
+    height: 104px
+}
+
+.car-parts .front-left-door.local-painted {
+    background-position: -111px -572px
+}
+
+.car-parts .front-right-door {
+    background-position: -110px -577px;
+    width: 80px;
+    height: 105px
+}
+
+.car-parts .front-right-door span {
+    left: 15px
+}
+
+.car-parts .front-right-door.painted {
+    background-position: -110px -577px;
+    width: 80px;
+    height: 105px
+}
+
+.car-parts .front-right-door.changed {
+    background-position: -110px -577px;
+    width: 80px;
+    height: 105px
+}
+
+.car-parts .front-right-door.local-painted {
+    background-position: -188px -469px
+}
+
+.car-parts .rear-left-door {
+    background-position: -349px -304px;
+    width: 79px;
+    height: 84px
+}
+
+.car-parts .rear-left-door span {
+    left: -15px
+}
+
+.car-parts .rear-left-door.painted {
+    background-position: -349px -304px;
+    width: 79px;
+    height: 84px
+}
+
+.car-parts .rear-left-door.changed {
+    background-position: -349px -304px;
+    width: 79px;
+    height: 84px
+}
+
+.car-parts .rear-left-door.local-painted {
+    background-position: -268px -384px
+}
+
+.car-parts .rear-right-door {
+    background-position: -270px -388px;
+    width: 79px;
+    height: 85px
+}
+
+.car-parts .rear-right-door span {
+    left: 15px
+}
+
+.car-parts .rear-right-door.painted {
+    background-position: -270px -388px;
+    width: 79px;
+    height: 85px
+}
+
+.car-parts .rear-right-door.changed {
+    background-position: -270px -388px;
+    width: 79px;
+    height: 85px
+}
+
+.car-parts .rear-right-door.local-painted {
+    background-position: -347px -300px
+}
+
+.car-parts .roof {
+    background-position: -742px -177px;
+    width: 74px;
+    height: 53px
+}
+
+.car-parts .roof.painted {
+    background-position: -742px -177px;
+    width: 74px;
+    height: 53px
+}
+
+.car-parts .roof.changed {
+    background-position: -742px -177px;
+    width: 74px;
+    height: 53px
+}
+
+.car-parts .roof.local-painted {
+    background-position: -739px -177px;
+    width: 74px;
+    height: 53px
+}
+
+.car-parts .rear-bumper {
+    background-position: -637px -230px;
+    width: 105px;
+    height: 22px
+}
+
+.car-parts .rear-bumper.painted {
+    background-position: -637px -230px;
+    width: 105px;
+    height: 22px
+}
+
+.car-parts .rear-bumper.changed {
+    background-position: -637px -230px;
+    width: 105px;
+    height: 22px
+}
+
+.car-parts .rear-bumper.local-painted {
+    background-position: -635px -230px
+}
+
+.car-parts .rear-hood {
+    background-position: -428px -274px;
+    width: 104px;
+    height: 30px
+}
+
+.car-parts .rear-hood span {
+    top: 4px
+}
+
+.car-parts .rear-hood.painted {
+    background-position: -428px -274px;
+    width: 104px;
+    height: 30px
+}
+
+.car-parts .rear-hood.changed {
+    background-position: -428px -274px;
+    width: 104px;
+    height: 30px
+}
+
+.car-parts .rear-hood.local-painted {
+    background-position: -426px -272px
+}
+
+.car-parts .rear-left-mudguard {
+    background-position: -816px -131px;
+    width: 28px;
+    height: 46px
+}
+
+.car-parts .rear-left-mudguard span {
+    left: 5px
+}
+
+.car-parts .rear-left-mudguard.painted {
+    background-position: -816px -131px;
+    width: 28px;
+    height: 46px
+}
+
+.car-parts .rear-left-mudguard.changed {
+    background-position: -816px -131px;
+    width: 28px;
+    height: 46px
+}
+
+.car-parts .rear-left-mudguard.local-painted {
+    background-position: -840px -86px
+}
+
+.car-parts .rear-right-mudguard {
+    background-position: -844px -86px;
+    width: 28px;
+    height: 45px
+}
+
+.car-parts .rear-right-mudguard span {
+    top: 5px
+}
+
+.car-parts .rear-right-mudguard.painted {
+    background-position: -844px -86px;
+    width: 28px;
+    height: 45px
+}
+
+.car-parts .rear-right-mudguard.changed {
+    background-position: -844px -86px;
+    width: 28px;
+    height: 45px
+}
+
+.car-parts .rear-right-mudguard.local-painted {
+    background-position: -812px -133px
+}
+
+.car-damage-info {
+    display: -webkit-inline-box;
+    display: -moz-inline-box;
+    display: -webkit-inline-flex;
+    display: -ms-inline-flexbox;
+    display: inline-box;
+    display: inline-flex;
+    margin-bottom: 20px;
+    width: 350px
+}
+
+.car-damage-info.pl-40 {
+    padding-left: 40px
+}
+
+.car-damage-info span {
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 16px;
+    margin-right: 10px;
+    display: inline-block;
+    position: relative;
+    padding-left: 22px
+}
+
+.car-damage-info span:before {
+    position: absolute;
+    left: 0;
+    width: 17px;
+    height: 16px;
+    margin-right: 10px;
+    content: ''
+}
+
+.car-damage-info span.original {
+    color: #999
+}
+
+.car-damage-info span.original:before {
+    background-color: #999
+}
+
+.car-damage-info span.changed {
+    color: #875de2
+}
+
+.car-damage-info span.changed:before {
+    background-color: #875de2
+}
+
+.car-damage-info span.changed-new {
+    color: #ff5e39
+}
+
+.car-damage-info span.changed-new:before {
+    background-color: #ff5e39
+}
+
+.car-damage-info span.painted {
+    color: #ff5e39
+}
+
+.car-damage-info span.painted:before {
+    background-color: #ff5e39
+}
+
+.car-damage-info span.painted-new {
+    color: #4083c9
+}
+
+.car-damage-info span.painted-new:before {
+    background-color: #4083c9
+}
+
+.car-damage-info span.local-painted {
+    color: #ffa945
+}
+
+.car-damage-info span.local-painted:before {
+    background-color: #ffa945
+}
+
+.car-damage-info span.local-painted-new {
+    color: #fe9546
+}
+
+.car-damage-info span.local-painted-new:before {
+    background-color: #fe9546
+}
+
+
+.car-parts {
+    width: 311px;
+    height: 391px;
+    position: relative
+}
+
+.car-parts div {
+    position: absolute;
+    z-index: 3;
+    -webkit-transition: background-image .1s linear;
+    -moz-transition: background-image .1s linear;
+    -o-transition: background-image .1s linear;
+    -ms-transition: background-image .1s linear;
+    -webkit-transition: background-image .1s linear;
+    -moz-transition: background-image .1s linear;
+    -o-transition: background-image .1s linear;
+    -ms-transition: background-image .1s linear;
+    transition: background-image .1s linear
+}
+
+.car-parts .front-bumper {
+    left: 104px;
+    top: 16px
+}
+
+.car-parts .front-left-mudguard {
+    top: 51px;
+    left: 21px
+}
+
+.car-parts .front-right-mudguard {
+    top: 51px;
+    left: 262px
+}
+
+.car-parts .front-hood {
+    top: 48px;
+    left: 101px
+}
+
+.car-parts .front-left-door {
+    top: 108px;
+    left: 21px
+}
+
+.car-parts .front-right-door {
+    top: 108px;
+    left: 210px
+}
+
+.car-parts .rear-left-door {
+    top: 197px;
+    left: 21px
+}
+
+.car-parts .rear-right-door {
+    top: 197px;
+    left: 211px
+}
+
+.car-parts .roof {
+    top: 208px;
+    left: 119px
+}
+
+.car-parts .rear-bumper {
+    left: 104px;
+    top: 352px
+}
+
+.car-parts .rear-hood {
+    top: 309px;
+    left: 104px
+}
+
+.car-parts .rear-left-mudguard {
+    top: 292px;
+    left: 21px
+}
+
+.car-parts .rear-right-mudguard {
+    top: 293px;
+    left: 262px
+}
+
+.car-parts .icons {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: -8px
+}
+
+.car-parts .icons .icon {
+    display: inline-block
+}
+
+.car-parts .icons .icon.icon-light-dent {
+    background-image: url('/otorezerv/assets/images/expertiseDetail:11508fec702283e92ef684838d47e5b8.png');
+    background-position: 0 -26px;
+    width: 16px;
+    height: 16px;
+    content: '';
+    display: inline-block;
+    vertical-align: middle
+}
+
+.car-parts .icons .icon.icon-high-dent {
+    background-image: url('/otorezerv/assets/images/expertiseDetail:11508fec702283e92ef684838d47e5b8.png');
+    background-position: 0 0;
+    width: 16px;
+    height: 16px;
+    content: '';
+    display: inline-block;
+    vertical-align: middle
+}
+
+.car-parts .icons .icon.icon-light-scrape {
+    background-image: url('/otorezerv/assets/images/expertiseDetail:11508fec702283e92ef684838d47e5b8.png');
+    background-position: -26px -26px;
+    width: 16px;
+    height: 16px;
+    content: '';
+    display: inline-block;
+    vertical-align: middle
+}
+
+.car-parts .icons .icon.icon-high-scrape {
+    background-image: url('/otorezerv/assets/images/expertiseDetail:11508fec702283e92ef684838d47e5b8.png');
+    background-position: -26px 0;
+    width: 16px;
+    height: 16px;
+    content: '';
+    display: inline-block;
+    vertical-align: middle
+}
+
+.car-parts .front-right-mudguard .icons {
+    margin-top: -16px
+}
+
+.car-parts .front-left-mudguard .icons {
+    margin-top: -16px
+}
+
+.car-parts .front-right-door .icons {
+    padding-left: 19px
+}
+
+.car-parts .rear-right-door .icons {
+    padding-left: 19px
+}
+
+.car-parts .front-left-door .icons {
+    width: 42px
+}
+
+.car-parts .rear-left-door .icons {
+    width: 42px
+}
+
+.car-parts .rear-hood .icons {
+    padding-top: 4px
+}
+
+.damage-area {
+    display: inline-block
+}
+
+.damage-area .car-parts {
+    background-image: url('/otorezerv/assets/images/vehicle_plan_0.png');
+    background-position: 0 0;
+    width: 311px;
+    height: 391px;
+    margin-bottom: 20px
+}
