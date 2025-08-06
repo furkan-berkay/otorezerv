@@ -655,9 +655,9 @@ if (isset($_GET["action"])) {
     }
     elseif ($_GET["action"] === "save_columns") {
         $selectedColumns = $_POST["columns"] ?? [];
+        $tableName = $_POST["table_name"] ?? [];
 
         $userId = $_SESSION["user_id"] ?? null;
-        $tableName = "vehicles-table";
 
         if ($userId && is_array($selectedColumns)) {
             // Önce eski tercihleri sil
@@ -681,6 +681,105 @@ if (isset($_GET["action"])) {
                 "message" => "Geçersiz veri."
             ]);
         }
+    }
+    elseif ($_GET["action"] === "get_customers") {
+
+        $columns = [
+            'id', 'first_name', 'second_name', 'last_name', 'phone_number', 'email', 'national_id', 'tax_id',
+            'location_address', 'location_country_id', 'location_city_id', 'location_district_id',
+            'note', 'is_active', 'notification_enabled', 'created_at', 'updated_at'
+        ];
+
+
+        $draw = intval($_POST['draw'] ?? 1);
+        $start = intval($_POST['start'] ?? 0);
+        $length = intval($_POST['length'] ?? 10);
+        if ($length === -1) {
+            $length = 1000000;
+        }
+        $searchValue = $_POST['search']['value'] ?? '';
+
+        $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
+        $orderColumn = $columns[$orderColumnIndex] ?? 'id';
+        $orderDir = $_POST['order'][0]['dir'] ?? 'desc';
+        $orderDir = strtolower($orderDir) === 'asc' ? 'ASC' : 'DESC';
+
+        $totalRecords = $db->query("SELECT COUNT(*) FROM customers WHERE company_id = {$_SESSION["selected_company_id"]}")->fetchColumn();
+
+        $searchSql = "WHERE v.company_id = :company_id ";
+        $searchParams = [":company_id" => $_SESSION["selected_company_id"]];
+
+        if ($searchValue !== '') {
+            $searchSqlParts = [];
+            foreach ($columns as $index => $col) {
+                $paramName = ":search_$index";
+                $searchSqlParts[] = "v.$col LIKE $paramName";
+                $searchParams[$paramName] = "%$searchValue%";
+            }
+            $searchSql .= "AND (" . implode(" OR ", $searchSqlParts) . ") ";
+        }
+
+        if (!empty($_POST['filters']) && is_array($_POST['filters'])) {
+            foreach ($_POST['filters'] as $field => $value) {
+                if ($value === '' || $value === null) continue;
+
+                if (in_array($field, $columns)) {
+                    $paramName = ":$field";
+                    if (is_numeric($value)) {
+                        $searchSql .= "AND v.`$field` = $paramName ";
+                        $searchParams[$paramName] = $value;
+                    }
+                    else {
+                        $searchSql .= "AND v.`$field` LIKE $paramName ";
+                        $searchParams[$paramName] = '%' . $value . '%';
+                    }
+                }
+            }
+        }
+
+        //echo "<pre>"; print_r($searchParams);
+        $stmt = $db->prepare("SELECT COUNT(*) FROM customers v $searchSql");
+        $stmt->execute($searchParams);
+        $filteredRecords = $stmt->fetchColumn();
+
+        $start = (int)$start;
+        $length = (int)$length;
+
+        $sql = "
+            SELECT 
+                v.*, 
+                c.name AS location_country_name,
+                ci.name AS location_city_name,
+                d.name AS location_district_name
+            FROM customers v
+            LEFT JOIN countries c ON v.location_country_id = c.id
+            LEFT JOIN cities ci ON v.location_city_id = ci.id
+            LEFT JOIN districts d ON v.location_district_id = d.id
+            $searchSql
+            ORDER BY v.$orderColumn $orderDir
+            LIMIT $start, $length
+        ";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($searchParams);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($data as &$row) {
+            if (isset($row["created_at"])) {
+                $row["created_at"] = date("d/m/Y H:i:s", strtotime($row["created_at"]));
+            }
+            if (isset($row["updated_at"])) {
+                $row["updated_at"] = date("d/m/Y H:i:s", strtotime($row["updated_at"]));
+            }
+        }
+        unset($row);
+
+        echo json_encode([
+            "draw" => $draw,
+            "recordsTotal" => intval($totalRecords),
+            "recordsFiltered" => intval($filteredRecords),
+            "data" => $data
+        ]);
     }
     else {
             echo json_encode([

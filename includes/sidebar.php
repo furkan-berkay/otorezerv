@@ -21,14 +21,20 @@
             >
                 <li class="nav-item">
                     <a href="<?= BASE_URL ?>" class="nav-link <?= ($current_page === 'dashboard') ? 'active' : '' ?>">
-                        <i class="nav-icon bi bi-speedometer"></i>
+                        <i class="nav-icon bi bi-house-door"></i>
                         <p>Anasayfa</p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="<?= BASE_URL ?>pages/vehicles"  class="nav-link <?= ($current_page === 'vehicles') ? 'active' : '' ?>">
-                        <i class="nav-icon bi bi-palette"></i>
+                        <i class="nav-icon bi bi-car-front"></i>
                         <p>Araçlar</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= BASE_URL ?>pages/customers"  class="nav-link <?= ($current_page === 'customers') ? 'active' : '' ?>">
+                        <i class="nav-icon bi bi-person-lines-fill"></i>
+                        <p>Müşteriler</p>
                     </a>
                 </li>
             </ul>
